@@ -1,0 +1,1907 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no">
+<title>Habits</title>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Habits">
+<meta name="theme-color" media="(prefers-color-scheme: light)" content="#f2f2f7">
+<meta name="theme-color" media="(prefers-color-scheme: dark)" content="#000000">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icons/icon-180.png">
+<link rel="icon" type="image/png" href="icons/icon-192.png">
+<style>
+:root {
+  color-scheme: light dark;
+  --bg: #f2f2f7; --card: #ffffff; --text: #000000; --text2: #8e8e93; --text3: #c7c7cc;
+  --sep: rgba(60,60,67,0.29); --fill: rgba(120,120,128,0.12); --fill2: rgba(120,120,128,0.2);
+  --tint: #007aff; --danger: #ff3b30; --shadow: 0 10px 40px rgba(0,0,0,0.18);
+  --sheet-bg: #f2f2f7; --card-elev: #ffffff; --bar: rgba(249,249,249,0.94);
+  --c-red:#ff3b30; --c-orange:#ff9500; --c-yellow:#ffcc00; --c-green:#34c759; --c-mint:#00c7be; --c-teal:#30b0c7;
+  --c-cyan:#32ade6; --c-blue:#007aff; --c-indigo:#5856d6; --c-purple:#af52de; --c-pink:#ff2d55; --c-brown:#a2845e;
+  --sat: env(safe-area-inset-top, 0px); --sab: env(safe-area-inset-bottom, 0px);
+  --radius: 12px;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #000000; --card: #1c1c1e; --text: #ffffff; --text2: #8e8e93; --text3: #48484a;
+    --sep: rgba(84,84,88,0.65); --fill: rgba(120,120,128,0.24); --fill2: rgba(120,120,128,0.36);
+    --tint: #0a84ff; --danger: #ff453a; --shadow: 0 10px 40px rgba(0,0,0,0.6);
+    --sheet-bg: #1c1c1e; --card-elev: #2c2c2e; --bar: rgba(22,22,22,0.94);
+    --c-red:#ff453a; --c-orange:#ff9f0a; --c-yellow:#ffd60a; --c-green:#30d158; --c-mint:#63e6e2; --c-teal:#40c8e0;
+    --c-cyan:#64d2ff; --c-blue:#0a84ff; --c-indigo:#5e5ce6; --c-purple:#bf5af2; --c-pink:#ff375f; --c-brown:#ac8e68;
+  }
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; height: 100%; }
+body {
+  position: fixed; inset: 0; overflow: hidden;
+  background: var(--bg); color: var(--text);
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", system-ui, sans-serif;
+  font-size: 17px; line-height: 1.3;
+  -webkit-text-size-adjust: 100%; -webkit-tap-highlight-color: transparent; -webkit-touch-callout: none;
+  overscroll-behavior: none; touch-action: manipulation;
+}
+button, input, select, textarea { font: inherit; color: inherit; }
+button { background: none; border: 0; padding: 0; margin: 0; cursor: pointer; touch-action: manipulation; }
+a { color: var(--tint); text-decoration: none; }
+#app { position: absolute; left: 0; top: 0; width: 100%; height: 100%; display: flex; flex-direction: column; }
+.screen { flex: 1; display: flex; flex-direction: column; min-height: 0; }
+.nav { display: flex; align-items: center; gap: 4px; padding: calc(var(--sat) + 6px) 12px 4px; min-height: calc(var(--sat) + 50px); }
+.nav .spacer { flex: 1; }
+.navbtn { display: inline-flex; align-items: center; justify-content: center; min-width: 44px; min-height: 44px; color: var(--tint); font-size: 17px; border-radius: 22px; padding: 0 6px; gap: 2px; }
+.navbtn:active { opacity: .5; }
+.navbtn svg { width: 24px; height: 24px; }
+.navbtn.strong { font-weight: 600; }
+.content { flex: 1; min-height: 0; overflow-y: auto; -webkit-overflow-scrolling: touch; padding: 0 16px; padding-bottom: calc(var(--sab) + 40px); overscroll-behavior: contain; }
+.title-lg { font-size: 34px; font-weight: 700; letter-spacing: -.4px; margin: 4px 0 10px; display: flex; align-items: baseline; gap: 10px; }
+.title-lg .count { font-size: 34px; font-weight: 700; color: var(--text2); margin-left: auto; }
+.section { font-size: 22px; font-weight: 700; margin: 26px 0 10px; }
+.card { background: var(--card); border-radius: var(--radius); overflow: hidden; }
+.icon { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+
+/* level header */
+.levelcard { padding: 6px 2px 2px; }
+.levelcard .row1 { display: flex; align-items: baseline; }
+.levelcard .lvl { font-size: 22px; font-weight: 700; }
+.levelcard .xp { margin-left: auto; color: var(--text2); font-size: 14px; font-variant-numeric: tabular-nums; }
+.bar { height: 8px; border-radius: 4px; background: var(--fill2); overflow: hidden; margin-top: 8px; }
+.bar i { display: block; height: 100%; width: 0; border-radius: 4px; background: var(--tint); transition: width .5s cubic-bezier(.2,.8,.2,1); }
+.bar.thin { height: 4px; margin-top: 4px; }
+
+/* smart tiles */
+.smart { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 16px; }
+.tile { background: var(--card); border-radius: var(--radius); padding: 10px 12px 10px; display: flex; flex-direction: column; min-height: 78px; color: inherit; }
+.tile:active { opacity: .6; }
+.tile .top { display: flex; align-items: center; justify-content: space-between; }
+.tile .ic { width: 32px; height: 32px; border-radius: 16px; display: inline-flex; align-items: center; justify-content: center; color: #fff; }
+.tile .ic svg { width: 20px; height: 20px; }
+.tile .n { font-size: 26px; font-weight: 700; color: var(--text); font-variant-numeric: tabular-nums; }
+.tile .lbl { color: var(--text2); font-weight: 600; margin-top: auto; font-size: 16px; }
+
+/* category rows */
+.catrow { display: flex; align-items: center; gap: 12px; padding: 10px 12px 10px 16px; min-height: 52px; color: inherit; position: relative; }
+.catrow:active { background: var(--fill); }
+.catrow + .catrow::before { content: ''; position: absolute; left: 60px; right: 0; top: 0; height: .5px; background: var(--sep); }
+.catic { width: 32px; height: 32px; border-radius: 16px; flex: none; display: inline-flex; align-items: center; justify-content: center; font-size: 18px; color: #fff; }
+.catrow .name { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.catrow .right { color: var(--text2); display: flex; align-items: center; gap: 6px; font-variant-numeric: tabular-nums; }
+.catrow .right svg { width: 14px; height: 14px; color: var(--text3); stroke-width: 2.4; }
+.chev { color: var(--text3); }
+.addlist { margin: 12px 0 0; }
+.addlist button { color: var(--tint); font-weight: 600; padding: 12px 4px; min-height: 44px; display: inline-flex; align-items: center; gap: 6px; }
+.addlist svg { width: 22px; height: 22px; }
+
+/* banner (backup nudge) */
+.nudge { margin-top: 14px; background: var(--card); border-radius: var(--radius); padding: 12px 14px; display: flex; gap: 12px; align-items: center; }
+.nudge .t { flex: 1; font-size: 15px; }
+.nudge .t b { display: block; }
+.nudge button { color: var(--tint); font-weight: 600; min-height: 44px; padding: 0 6px; }
+
+/* item rows */
+.swipe { position: relative; overflow: hidden; background: var(--card); }
+.row { display: flex; align-items: flex-start; gap: 10px; padding: 10px 16px 10px 12px; background: var(--card); position: relative; z-index: 1; transition: transform .25s cubic-bezier(.2,.8,.2,1); touch-action: pan-y; will-change: transform; }
+.swipe.swiping .row { transition: none; }
+.swipe.open .row { transform: translateX(-88px); }
+.swipe:not(:last-child) .row::after { content: ''; position: absolute; left: 54px; right: 0; bottom: 0; height: .5px; background: var(--sep); }
+.row.sub { padding-left: 44px; }
+.swipe:not(:last-child) .row.sub::after { left: 86px; }
+.checkwrap { width: 44px; height: 44px; margin: -11px -8px -11px -8px; flex: none; display: inline-flex; align-items: center; justify-content: center; }
+.check { width: 22px; height: 22px; border-radius: 50%; border: 1.5px solid var(--text3); position: relative; transition: background .15s, border-color .15s, transform .15s; --c: var(--tint); }
+.check.done { background: var(--c); border-color: var(--c); }
+.check.done::after { content: ''; position: absolute; left: 6.5px; top: 2.5px; width: 5px; height: 10px; border: solid #fff; border-width: 0 2px 2px 0; transform: rotate(45deg); }
+.check.partial { border-color: var(--c); }
+.check.partial::after { content: attr(data-n); position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 700; color: var(--c); }
+.checkwrap:active .check { transform: scale(.9); }
+.row .body { flex: 1; min-width: 0; padding-top: 1px; }
+.row .txt { word-wrap: break-word; }
+.row.done .txt { color: var(--text2); }
+.row .meta { color: var(--text2); font-size: 13px; margin-top: 2px; display: flex; flex-wrap: wrap; gap: 4px 8px; align-items: center; }
+.row .meta .over { color: var(--danger); }
+.row .meta .dot { width: 8px; height: 8px; border-radius: 4px; display: inline-block; margin-right: 4px; vertical-align: middle; }
+.row .meta .chip { background: var(--fill); border-radius: 6px; padding: 0 5px; font-size: 12px; font-weight: 600; }
+.row-del { position: absolute; top: 0; right: 0; bottom: 0; width: 88px; z-index: 0; background: var(--danger); color: #fff; font-weight: 600; display: flex; align-items: center; justify-content: center; }
+.group-h { color: var(--text2); font-size: 13px; text-transform: uppercase; letter-spacing: .4px; margin: 20px 0 6px 16px; font-weight: 600; }
+.group-h.first { margin-top: 8px; }
+.empty { color: var(--text2); text-align: center; padding: 40px 20px; font-size: 16px; }
+
+/* new item row */
+.newwrap { flex: none; padding: 8px 16px calc(var(--sab) + 8px); background: var(--bg); border-top: .5px solid var(--sep); }
+.newrow { display: flex; align-items: center; gap: 10px; background: var(--card); border-radius: var(--radius); padding: 4px 4px 4px 12px; min-height: 48px; }
+.newrow .plus { width: 22px; height: 22px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; background: var(--tint); color: #fff; flex: none; }
+.newrow .plus svg { width: 16px; height: 16px; stroke-width: 2.6; }
+.newrow input { flex: 1; min-width: 0; border: 0; background: none; outline: none; font-size: 17px; padding: 8px 0; }
+.newrow input::placeholder { color: var(--text2); }
+.newrow .cam { width: 44px; height: 44px; display: inline-flex; align-items: center; justify-content: center; color: var(--tint); border-radius: 22px; }
+.newrow .cam svg { width: 26px; height: 26px; }
+.hint { color: var(--text2); font-size: 13px; padding: 6px 12px 0; min-height: 0; }
+.hint:empty { display: none; }
+
+/* sheets */
+#sheet-root:empty { display: none; }
+.backdrop { position: fixed; inset: 0; background: rgba(0,0,0,.4); animation: fade .2s; z-index: 40; }
+.sheet { position: fixed; left: 0; right: 0; bottom: 0; max-height: calc(100% - var(--sat) - 12px); background: var(--sheet-bg); --card: var(--card-elev); border-radius: 14px 14px 0 0; z-index: 41; display: flex; flex-direction: column; animation: up .3s cubic-bezier(.2,.8,.2,1); box-shadow: var(--shadow); }
+.sheet::before { content: ''; position: absolute; top: 6px; left: 50%; width: 36px; height: 5px; margin-left: -18px; border-radius: 3px; background: var(--fill2); }
+.sheet.tall { height: calc(100% - var(--sat) - 12px); }
+.sheet-head { display: flex; align-items: center; padding: 6px 8px; min-height: 52px; flex: none; }
+.sheet-head .t { flex: 1; text-align: center; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.sheet-head .navbtn { min-width: 60px; justify-content: flex-start; }
+.sheet-head .navbtn.right { justify-content: flex-end; }
+.sheet-body { overflow-y: auto; -webkit-overflow-scrolling: touch; padding: 0 16px calc(var(--sab) + 24px); flex: 1; min-height: 0; overscroll-behavior: contain; }
+.grp { background: var(--card); border-radius: var(--radius); overflow: hidden; margin-bottom: 20px; }
+.grp + .grp { margin-top: -4px; }
+.fld { display: flex; align-items: center; gap: 12px; padding: 10px 16px; min-height: 46px; position: relative; }
+.fld + .fld::before, .fld + .fldc::before, .fldc + .fld::before { content: ''; position: absolute; left: 16px; right: 0; top: 0; height: .5px; background: var(--sep); }
+.fld .l { flex: 1; min-width: 0; }
+.fld .v { color: var(--text2); text-align: right; }
+.fld input[type=text], .fld input[type=number], .fld input[type=password], .fld input[type=date], .fld select, .fld textarea { flex: 1; min-width: 0; border: 0; background: none; outline: none; font-size: 17px; padding: 4px 0; }
+.fld input[type=date] { text-align: right; color: var(--tint); -webkit-appearance: none; appearance: none; }
+.fld select { text-align: right; color: var(--text2); -webkit-appearance: none; appearance: none; direction: rtl; padding-right: 2px; }
+.fld select option { direction: ltr; }
+.fld textarea { resize: none; line-height: 1.35; padding: 6px 0; }
+.fld .big { font-size: 20px; font-weight: 600; }
+.fld input::placeholder, .fld textarea::placeholder { color: var(--text2); }
+.fld .action { color: var(--tint); }
+.fld .danger { color: var(--danger); }
+.fld.tap:active { background: var(--fill); }
+.fldc { padding: 10px 16px 12px; position: relative; }
+.seg { display: flex; background: var(--fill); border-radius: 9px; padding: 2px; margin: 4px 0; }
+.seg button { flex: 1; min-height: 32px; border-radius: 7px; font-size: 14px; font-weight: 500; color: var(--text); }
+.seg button.on { background: var(--card); box-shadow: 0 1px 3px rgba(0,0,0,.12); font-weight: 600; }
+.seg.tiers button { flex-direction: column; display: flex; align-items: center; padding: 4px 0; }
+.seg.tiers small { font-size: 10px; color: var(--text2); font-weight: 500; }
+.chips { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 8px; }
+.chips button { min-width: 40px; height: 34px; padding: 0 10px; border-radius: 17px; background: var(--fill); font-size: 14px; font-weight: 600; }
+.chips button.on { background: var(--tint); color: #fff; }
+.stepper { display: inline-flex; align-items: center; background: var(--fill); border-radius: 8px; overflow: hidden; }
+.stepper button { width: 40px; height: 32px; font-size: 20px; }
+.stepper span { min-width: 34px; text-align: center; font-weight: 600; font-variant-numeric: tabular-nums; }
+.swatches { display: grid; grid-template-columns: repeat(6, 1fr); gap: 12px; padding: 12px 16px; }
+.swatches button { width: 40px; height: 40px; border-radius: 20px; margin: 0 auto; position: relative; }
+.swatches button.on::after { content: ''; position: absolute; inset: -5px; border: 3px solid var(--text3); border-radius: 50%; }
+.emojis { display: grid; grid-template-columns: repeat(6, 1fr); gap: 8px; padding: 12px 16px; }
+.emojis button { width: 44px; height: 44px; border-radius: 22px; font-size: 24px; margin: 0 auto; }
+.emojis button.on { background: var(--fill2); }
+.catpreview { display: flex; flex-direction: column; align-items: center; gap: 12px; padding: 20px 16px 8px; }
+.catpreview .big { width: 88px; height: 88px; border-radius: 44px; font-size: 48px; display: flex; align-items: center; justify-content: center; color: #fff; box-shadow: 0 6px 16px rgba(0,0,0,.18); }
+.catpreview input { width: 100%; text-align: center; font-size: 22px; font-weight: 600; border: 0; background: var(--fill); border-radius: 10px; padding: 10px; outline: none; }
+.btn { display: block; width: 100%; text-align: center; padding: 13px; font-weight: 600; border-radius: var(--radius); background: var(--card); color: var(--tint); min-height: 48px; }
+.btn.danger { color: var(--danger); }
+.btn.primary { background: var(--tint); color: #fff; }
+.btn.primary:disabled { opacity: .4; }
+.btn + .btn { margin-top: 12px; }
+.stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; padding: 12px 16px; text-align: center; }
+.stats .n { font-size: 22px; font-weight: 700; font-variant-numeric: tabular-nums; }
+.stats .l { color: var(--text2); font-size: 12px; text-transform: uppercase; letter-spacing: .3px; }
+.subrow { display: flex; align-items: center; gap: 8px; padding: 6px 12px 6px 8px; min-height: 44px; position: relative; }
+.subrow + .subrow::before { content: ''; position: absolute; left: 44px; right: 0; top: 0; height: .5px; background: var(--sep); }
+.subrow .body { flex: 1; min-width: 0; }
+.subrow .body .txt { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.subrow.done .txt { color: var(--text2); }
+.subrow .chip { background: var(--fill); border-radius: 6px; padding: 0 5px; font-size: 12px; font-weight: 600; color: var(--text2); }
+.subrow input { flex: 1; min-width: 0; border: 0; background: none; outline: none; font-size: 17px; }
+.subrow .chev { width: 18px; height: 18px; }
+.note { color: var(--text2); font-size: 13px; padding: 0 16px 8px; margin-top: -12px; line-height: 1.35; }
+.menu { padding: 8px 16px calc(var(--sab) + 16px); }
+.menu button { display: flex; align-items: center; gap: 12px; width: 100%; min-height: 56px; padding: 0 16px; background: var(--card); font-size: 18px; }
+.menu button + button { border-top: .5px solid var(--sep); }
+.menu button svg { width: 24px; height: 24px; color: var(--tint); }
+.menu button.danger { color: var(--danger); }
+.menu .grp { margin-bottom: 10px; }
+
+/* capture review */
+.rv { display: flex; gap: 6px; padding: 10px 12px 10px 6px; position: relative; }
+.rv + .rv::before { content: ''; position: absolute; left: 48px; right: 0; top: 0; height: .5px; background: var(--sep); }
+.rv.off .rv-body { opacity: .45; }
+.rv-check { width: 42px; flex: none; display: flex; align-items: flex-start; justify-content: center; padding-top: 7px; }
+.rv-check input { position: absolute; opacity: 0; width: 1px; height: 1px; }
+.rv-check .check { --c: var(--tint); }
+.rv-check input:checked + .check { background: var(--c); border-color: var(--c); }
+.rv-check input:checked + .check::after { content: ''; position: absolute; left: 6.5px; top: 2.5px; width: 5px; height: 10px; border: solid #fff; border-width: 0 2px 2px 0; transform: rotate(45deg); }
+.rv-body { flex: 1; min-width: 0; }
+.rv-body input[type=text] { width: 100%; border: 0; background: none; outline: none; font-size: 17px; padding: 4px 0; }
+.rv-dup { color: var(--c-orange); font-size: 13px; margin-top: 2px; }
+.rv-ctl { display: flex; gap: 6px; margin-top: 6px; flex-wrap: wrap; align-items: center; }
+.rv-ctl select, .rv-ctl button, .rv-ctl input { font-size: 13px; font-weight: 500; background: var(--fill); border: 0; border-radius: 8px; padding: 0 9px; color: var(--text); -webkit-appearance: none; appearance: none; min-height: 30px; max-width: 46%; }
+
+/* achievements */
+.ach { display: flex; align-items: center; gap: 12px; padding: 10px 16px; min-height: 60px; position: relative; color: inherit; width: 100%; text-align: left; }
+.ach + .ach::before { content: ''; position: absolute; left: 68px; right: 0; top: 0; height: .5px; background: var(--sep); }
+.ach:active { background: var(--fill); }
+.ach .ic { width: 40px; height: 40px; border-radius: 20px; background: var(--fill); font-size: 22px; display: inline-flex; align-items: center; justify-content: center; flex: none; }
+.ach.on .ic { background: linear-gradient(135deg, #ffd60a, #ff9f0a); box-shadow: 0 2px 8px rgba(255,159,10,.35); }
+.ach .body { flex: 1; min-width: 0; }
+.ach .nm { font-weight: 600; }
+.ach .sub { color: var(--text2); font-size: 13px; margin-top: 2px; font-variant-numeric: tabular-nums; }
+.ach.on .sub { color: var(--text2); }
+.ach .bar { margin-top: 6px; }
+
+/* toasts / banners */
+.toast { position: fixed; left: 50%; bottom: calc(var(--sab) + 84px); transform: translateX(-50%); background: rgba(30,30,32,.92); color: #fff; padding: 10px 18px; border-radius: 22px; font-weight: 600; z-index: 60; display: flex; align-items: center; gap: 14px; animation: pop .25s cubic-bezier(.2,.8,.2,1); box-shadow: 0 6px 20px rgba(0,0,0,.25); width: max-content; max-width: calc(100% - 32px); text-align: center; font-size: 15px; }
+.toast.xp { background: var(--tint); font-size: 18px; white-space: nowrap; }
+.toast.out { animation: popout .2s forwards; }
+.toast button { color: #ffd60a; font-weight: 700; padding: 6px 0; }
+.banner { position: fixed; left: 16px; right: 16px; top: calc(var(--sat) + 10px); background: var(--card); border-radius: 16px; padding: 12px 16px; display: flex; align-items: center; gap: 14px; z-index: 61; box-shadow: var(--shadow); animation: drop .4s cubic-bezier(.2,.8,.2,1); }
+.banner.out { animation: rise .25s forwards; }
+.banner .ic { width: 44px; height: 44px; border-radius: 22px; background: linear-gradient(135deg, #ffd60a, #ff9f0a); display: inline-flex; align-items: center; justify-content: center; font-size: 24px; animation: glow 1.2s ease-in-out infinite; flex: none; }
+.banner .k { color: var(--text2); font-size: 13px; font-weight: 600; text-transform: uppercase; letter-spacing: .4px; }
+.banner .v { font-weight: 700; font-size: 18px; }
+@keyframes fade { from { opacity: 0; } }
+@keyframes up { from { transform: translateY(100%); } }
+@keyframes pop { from { transform: translateX(-50%) translateY(12px) scale(.9); opacity: 0; } }
+@keyframes popout { to { transform: translateX(-50%) translateY(8px); opacity: 0; } }
+@keyframes drop { from { transform: translateY(-120%); opacity: 0; } }
+@keyframes rise { to { transform: translateY(-120%); opacity: 0; } }
+@keyframes glow { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.12); } }
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; } }
+
+/* tab bar (Lists | Skills) */
+.tabbar { flex: none; display: flex; background: var(--bar); border-top: .5px solid var(--sep); padding-bottom: var(--sab); -webkit-backdrop-filter: saturate(180%) blur(20px); backdrop-filter: saturate(180%) blur(20px); }
+.tab { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1px; min-height: 50px; padding-top: 5px; font-size: 10px; font-weight: 600; color: var(--text2); letter-spacing: .1px; }
+.tab svg { width: 27px; height: 27px; }
+.tab.on { color: var(--tint); }
+.tab:active { opacity: .6; }
+.content.tabbed { padding-bottom: 28px; }
+
+/* skills tab */
+.ovr { padding: 14px 16px 16px; margin-bottom: 12px; }
+.ovr-top { display: flex; align-items: flex-end; justify-content: space-between; gap: 12px; }
+.ovr-k { color: var(--text2); font-size: 13px; font-weight: 600; text-transform: uppercase; letter-spacing: .4px; }
+.ovr-lv { font-size: 30px; font-weight: 800; letter-spacing: -.3px; line-height: 1.15; }
+.ovr-xp { text-align: right; color: var(--text2); font-size: 14px; font-variant-numeric: tabular-nums; line-height: 1.35; }
+.ovr .bar { height: 10px; border-radius: 5px; margin-top: 10px; }
+.achrow { display: flex; align-items: center; gap: 12px; padding: 10px 12px 10px 16px; min-height: 52px; color: inherit; margin-bottom: 18px; }
+.achrow:active { opacity: .6; }
+.achrow .name { flex: 1; font-weight: 600; }
+.achrow .right { color: var(--text2); display: flex; align-items: center; gap: 6px; font-variant-numeric: tabular-nums; }
+.achrow .right svg { width: 14px; height: 14px; color: var(--text3); stroke-width: 2.4; }
+.trophy-ic { background: linear-gradient(135deg, #ffd60a, #ff9f0a); }
+.skgrid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.sktile { background: var(--card); border-radius: var(--radius); padding: 12px 12px 10px; display: flex; flex-direction: column; gap: 3px; color: inherit; min-height: 112px; min-width: 0; }
+.sktile:active { opacity: .6; }
+.sk-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 4px; }
+.sk-lv { font-size: 20px; font-weight: 800; font-variant-numeric: tabular-nums; }
+.sk-name { font-weight: 600; font-size: 16px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.sk-xp { color: var(--text2); font-size: 12px; font-variant-numeric: tabular-nums; margin-top: 2px; }
+.sktile .bar { margin-top: 3px; height: 5px; }
+.sknote { color: var(--text2); font-size: 13px; text-align: center; padding: 16px 8px 0; line-height: 1.35; }
+.skhead { display: flex; align-items: center; gap: 14px; margin: 4px 0 14px; }
+.skhead .big { width: 60px; height: 60px; border-radius: 30px; font-size: 32px; display: flex; align-items: center; justify-content: center; flex: none; box-shadow: 0 4px 12px rgba(0,0,0,.15); }
+.skhead .title-lg { margin: 0; }
+.skhead .sub { color: var(--text2); font-size: 15px; font-variant-numeric: tabular-nums; }
+.skprog { background: var(--card); border-radius: var(--radius); padding: 14px 16px; }
+.skprog .bar { height: 10px; border-radius: 5px; margin-top: 0; }
+.skprog .row1 { display: flex; justify-content: space-between; color: var(--text2); font-size: 13px; margin-top: 8px; font-variant-numeric: tabular-nums; }
+.skprog .skhint { color: var(--text2); font-size: 14px; margin-top: 10px; line-height: 1.35; }
+.srcnote { display: block; color: var(--text2); font-size: 12px; margin-top: 1px; }
+.switch { -webkit-appearance: none; appearance: none; width: 51px; height: 31px; border-radius: 16px; background: var(--fill2); position: relative; transition: background .2s; flex: none; margin: 0; cursor: pointer; }
+.switch::after { content: ''; position: absolute; top: 2px; left: 2px; width: 27px; height: 27px; border-radius: 50%; background: #fff; box-shadow: 0 2px 4px rgba(0,0,0,.25); transition: transform .2s; }
+.switch:checked { background: var(--c-green); }
+.switch:checked::after { transform: translateX(20px); }
+
+/* completion celebration: check pop, floating +XP, boost card */
+.check.pop { animation: checkPop .45s cubic-bezier(.2,1.6,.4,1); }
+.check.pop::before { content: ''; position: absolute; inset: -7px; border-radius: 50%; border: 2px solid var(--c); opacity: 0; animation: ring .55s ease-out; pointer-events: none; }
+@keyframes checkPop { 0% { transform: scale(.7); } 50% { transform: scale(1.28); } 100% { transform: scale(1); } }
+@keyframes ring { 0% { opacity: .9; transform: scale(.6); } 100% { opacity: 0; transform: scale(1.7); } }
+.floater { position: fixed; z-index: 63; pointer-events: none; font-weight: 800; font-size: 15px; color: var(--c-green); white-space: nowrap; animation: floatUp .95s ease-out forwards; }
+@keyframes floatUp { 0% { transform: translate(-50%, 4px) scale(.8); opacity: 0; } 15% { transform: translate(-50%, -6px) scale(1.06); opacity: 1; } 100% { transform: translate(-50%, -48px) scale(1); opacity: 0; } }
+.boost { position: fixed; left: 16px; right: 16px; bottom: calc(var(--sab) + 84px); z-index: 62; background: var(--card-elev); border-radius: 18px; padding: 10px 14px 10px; box-shadow: var(--shadow); animation: boostIn .38s cubic-bezier(.2,1.3,.4,1); max-width: 460px; margin: 0 auto; }
+.boost.out { animation: boostOut .25s forwards; }
+.boost-top { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 4px; }
+.praise { font-size: 13px; font-weight: 800; text-transform: uppercase; letter-spacing: .6px; color: var(--tint); }
+.boost-total { font-size: 20px; font-weight: 800; font-variant-numeric: tabular-nums; }
+.boost-row { display: flex; align-items: center; gap: 10px; padding: 5px 0; }
+.bic { width: 38px; height: 38px; border-radius: 19px; display: inline-flex; align-items: center; justify-content: center; font-size: 21px; flex: none; animation: bicPop .55s cubic-bezier(.2,1.6,.4,1); transition: box-shadow .3s; }
+.bmid { flex: 1; min-width: 0; }
+.bline { display: flex; justify-content: space-between; gap: 8px; font-size: 15px; font-weight: 700; }
+.bname { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.blv { color: var(--text2); font-variant-numeric: tabular-nums; flex: none; }
+.boost-row .bar { margin-top: 6px; height: 7px; }
+.boost-row .bar i { transition: none; }
+.bgain { font-weight: 800; color: var(--c-green); font-variant-numeric: tabular-nums; min-width: 40px; text-align: right; }
+.boost-row.lvup .blv { color: var(--c-orange); animation: lvPop .55s cubic-bezier(.2,1.6,.4,1); }
+.boost-row.lvup .bic { box-shadow: 0 0 0 4px rgba(255,159,10,.35), 0 0 22px rgba(255,159,10,.7); }
+@keyframes boostIn { from { transform: translateY(36px) scale(.9); opacity: 0; } }
+@keyframes boostOut { to { transform: translateY(24px); opacity: 0; } }
+@keyframes bicPop { 0% { transform: scale(.3) rotate(-20deg); } 60% { transform: scale(1.2) rotate(6deg); } 100% { transform: scale(1) rotate(0); } }
+@keyframes lvPop { 0% { transform: scale(1); } 45% { transform: scale(1.35); } 100% { transform: scale(1); } }
+
+/* full-screen intro views */
+.intro { flex: 1; display: flex; flex-direction: column; justify-content: center; padding: calc(var(--sat) + 24px) 28px calc(var(--sab) + 28px); gap: 14px; overflow-y: auto; }
+.intro .logo { width: 84px; height: 84px; border-radius: 20px; background: var(--tint); display: flex; align-items: center; justify-content: center; margin-bottom: 8px; box-shadow: 0 8px 24px rgba(0,122,255,.3); }
+.intro .logo svg { width: 48px; height: 48px; color: #fff; stroke-width: 2.4; }
+.intro h1 { font-size: 30px; margin: 0; letter-spacing: -.4px; }
+.intro p { margin: 0; color: var(--text2); font-size: 17px; }
+.intro ol { margin: 0; padding-left: 22px; color: var(--text2); display: grid; gap: 8px; }
+.intro ol b { color: var(--text); }
+.intro .btn { margin-top: 12px; }
+.intro .link { text-align: center; color: var(--tint); padding: 12px; }
+.spinner { width: 28px; height: 28px; border: 3px solid var(--fill2); border-top-color: var(--tint); border-radius: 50%; animation: spin .8s linear infinite; margin: 0 auto; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.center { text-align: center; padding: 24px 16px; color: var(--text2); }
+</style>
+</head>
+<body>
+<div id="app"><div class="screen"><div class="center" style="padding-top:40vh"><div class="spinner"></div></div></div></div>
+<div id="sheet-root"></div>
+<input type="file" id="file-photo" accept="image/*" capture="environment" hidden>
+<input type="file" id="file-import" accept=".json,application/json" hidden>
+<script src="game.js"></script>
+<script>
+'use strict';
+const APP_VERSION = '1.1.0';
+
+// ---------- utilities ----------
+const $ = sel => document.querySelector(sel);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const fmtNum = n => Number(n || 0).toLocaleString('en-US');
+const nowIso = () => new Date().toISOString();
+const IS_IOS_TAB = navigator.standalone === false;
+const IS_STANDALONE = navigator.standalone === true || (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches);
+const ICONS = {
+  camera: '<svg class="icon" viewBox="0 0 24 24"><path d="M4 8.5A2.5 2.5 0 0 1 6.5 6h1.3l1-1.5A1.2 1.2 0 0 1 9.8 4h4.4a1.2 1.2 0 0 1 1 .5l1 1.5h1.3A2.5 2.5 0 0 1 20 8.5v8a2.5 2.5 0 0 1-2.5 2.5h-11A2.5 2.5 0 0 1 4 16.5z"/><circle cx="12" cy="12.5" r="3.3"/></svg>',
+  trophy: '<svg class="icon" viewBox="0 0 24 24"><path d="M8 4h8v5.5a4 4 0 0 1-8 0z"/><path d="M8 5.5H5.5a1 1 0 0 0-1 1v.5a3 3 0 0 0 3 3H8M16 5.5h2.5a1 1 0 0 1 1 1v.5a3 3 0 0 1-3 3H16"/><path d="M12 13.5V17M9 20h6M10 17h4v3h-4z"/></svg>',
+  settings: '<svg class="icon" viewBox="0 0 24 24"><path d="M4 7h9M17 7h3M4 12h3M11 12h9M4 17h11M19 17h1"/><circle cx="15" cy="7" r="2"/><circle cx="9" cy="12" r="2"/><circle cx="17" cy="17" r="2"/></svg>',
+  chevR: '<svg class="icon" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg>',
+  chevL: '<svg class="icon" viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg>',
+  plus: '<svg class="icon" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>',
+  check: '<svg class="icon" viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>',
+  more: '<svg class="icon" viewBox="0 0 24 24"><circle cx="6" cy="12" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="18" cy="12" r="1.6"/></svg>',
+  today: '<svg class="icon" viewBox="0 0 24 24"><rect x="4" y="5" width="16" height="15" rx="2.5"/><path d="M4 10h16M8 3v4M16 3v4"/><circle cx="12" cy="15" r="1.4" fill="currentColor"/></svg>',
+  scheduled: '<svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><path d="M12 8v4.5l3 2"/></svg>',
+  all: '<svg class="icon" viewBox="0 0 24 24"><path d="M5 13l1.5-7h11L19 13v6H5z"/><path d="M5 13h4l1.5 2h3L15 13h4"/></svg>',
+  completed: '<svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><path d="M8.5 12.3l2.4 2.4 4.6-5"/></svg>',
+  paste: '<svg class="icon" viewBox="0 0 24 24"><rect x="6" y="5" width="12" height="16" rx="2"/><path d="M9 5.5V4.5a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v1M9.5 11h5M9.5 15h3"/></svg>',
+  share: '<svg class="icon" viewBox="0 0 24 24"><path d="M12 3v12M8 7l4-4 4 4M6 11v8a1.5 1.5 0 0 0 1.5 1.5h9A1.5 1.5 0 0 0 18 19v-8"/></svg>',
+  trash: '<svg class="icon" viewBox="0 0 24 24"><path d="M5 7h14M10 11v6M14 11v6M6.5 7l1 12.5h9L17.5 7M9 7V4.5h6V7"/></svg>',
+  lists: '<svg class="icon" viewBox="0 0 24 24"><circle cx="5" cy="6.5" r="1.4" fill="currentColor"/><circle cx="5" cy="12" r="1.4" fill="currentColor"/><circle cx="5" cy="17.5" r="1.4" fill="currentColor"/><path d="M9.5 6.5H20M9.5 12H20M9.5 17.5H20"/></svg>',
+  bolt: '<svg class="icon" viewBox="0 0 24 24"><path d="M13.2 2.8L5.6 13.1a.6.6 0 0 0 .5 1h5.1l-1.5 7.1a.4.4 0 0 0 .7.3l7.9-10.4a.6.6 0 0 0-.5-1h-5.2l1.3-7a.4.4 0 0 0-.7-.3z"/></svg>'
+};
+const EMOJI_PRESETS = ['🏃', '📚', '💼', '💵', '🏠', '🎉', '🧘', '🍎', '💪', '🎯', '✈️', '🎸', '🧹', '🐶', '❤️', '🧠', '🛒', '💻', '🎨', '🌱', '🚴', '🛠️', '📝', '☀️', '🌙', '⚽', '🍳', '📷', '🎮', '🔥'];
+const SKILL_EMOJIS = ['💪', '🤸', '🏃', '❤️', '🧘', '📚', '💼', '💵', '🗣️', '🏠', '🎨', '🎸', '🧠', '⚡', '🛡️', '🎯', '🍳', '🌱', '🧗', '🏊', '🚴', '🥗', '😴', '✍️', '🎮', '🧩', '🗺️', '🔧', '💡', '🌟'];
+const PRAISE = ['Nice!', 'Clean.', "Let's go!", 'Solid.', 'Nailed it.', 'Keep stacking.', 'Smooth.', 'Done and done.'];
+const reduceMotion = () => !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+
+// ---------- IndexedDB ----------
+const DB = (() => {
+  const NAME = 'habit-tracker', VERSION = 2; // v2 adds the `skills` store
+  const STORES = ['categories', 'items', 'completions', 'achievements', 'settings', 'secrets', 'skills'];
+  let dbp = null;
+  function open() {
+    if (dbp) return dbp;
+    dbp = new Promise((res, rej) => {
+      const r = indexedDB.open(NAME, VERSION);
+      r.onupgradeneeded = () => { const d = r.result; for (const s of STORES) if (!d.objectStoreNames.contains(s)) d.createObjectStore(s, { keyPath: 'id' }); };
+      r.onsuccess = () => { const d = r.result; d.onversionchange = () => d.close(); res(d); };
+      r.onerror = () => rej(r.error);
+      r.onblocked = () => rej(new Error('The app is open in another tab. Close it and reload.'));
+    });
+    return dbp;
+  }
+  async function getAll(store) {
+    const d = await open();
+    return new Promise((res, rej) => { const q = d.transaction(store, 'readonly').objectStore(store).getAll(); q.onsuccess = () => res(q.result || []); q.onerror = () => rej(q.error); });
+  }
+  // ops: {store, put:obj} | {store, del:id} | {store, clear:true}
+  async function write(ops) {
+    if (!ops.length) return;
+    const d = await open();
+    const stores = [...new Set(ops.map(o => o.store))];
+    return new Promise((res, rej) => {
+      const t = d.transaction(stores, 'readwrite');
+      for (const o of ops) { const s = t.objectStore(o.store); if (o.clear) s.clear(); else if (o.del !== undefined) s.delete(o.del); else s.put(o.put); }
+      t.oncomplete = () => res();
+      t.onerror = () => rej(t.error);
+      t.onabort = () => rej(t.error || new Error('aborted'));
+    });
+  }
+  return { open, getAll, write, STORES };
+})();
+let writeQueue = Promise.resolve();
+function persist(ops) {
+  writeQueue = writeQueue.then(() => DB.write(ops)).catch(err => { console.error('persist failed', err); toast('Save failed: ' + (err && err.message || err)); });
+  return writeQueue;
+}
+
+// ---------- state ----------
+const S = { categories: [], skills: [], items: [], completions: [], achievements: [], settings: null, apiKey: null };
+let IDX = new Map(), TOTALS = { overall: 0, byCategory: {}, bySkill: {} };
+function recompute() { IDX = Game.indexCompletions(S.completions); TOTALS = Game.xpTotals(S.completions); }
+function todayKey() { return Game.dayKey(new Date(), S.settings.dayStartHour); }
+function gameState() { return { items: S.items, completions: S.completions, settings: S.settings, achievements: S.achievements, categories: S.categories, skills: S.skills }; }
+const catById = id => S.categories.find(c => c.id === id) || null;
+const skillById = id => (id && S.skills.find(s => s.id === id)) || null;
+const itemById = id => S.items.find(i => i.id === id) || null;
+const childrenOf = id => S.items.filter(i => i.parentId === id).sort((a, b) => a.sortOrder - b.sortOrder);
+const catColor = cat => cat ? `var(--c-${cat.color})` : 'var(--text2)';
+const skColor = sk => sk ? `var(--c-${sk.color})` : 'var(--tint)';
+const sortedCats = () => S.categories.slice().sort((a, b) => a.sortOrder - b.sortOrder);
+const sortedSkills = () => S.skills.slice().sort((a, b) => a.sortOrder - b.sortOrder);
+function defaultCategoryId() { return catById(S.settings.defaultCategoryId) ? S.settings.defaultCategoryId : (sortedCats()[0] || {}).id; }
+const pct = f => (Math.max(0, Math.min(1, f)) * 100).toFixed(1) + '%';
+
+// ---------- actions ----------
+function saveSettings(patch) { Object.assign(S.settings, patch); persist([{ store: 'settings', put: S.settings }]); }
+
+// Skill for a new item: explicit pick > instant keyword guess > parent's skill. Claude re-checks guesses later.
+function initialSkill(text, spec, parent) {
+  if (spec.skillId && skillById(spec.skillId)) return { skillId: spec.skillId, skillSource: spec.skillSource || 'user', aiCheckedAt: spec.skillSource === 'ai' ? nowIso() : null };
+  if (spec.skillSource === 'user') return { skillId: null, skillSource: 'user', aiCheckedAt: null }; // you chose "No skill"
+  const g = Game.inferSkill(text, S.skills);
+  if (g) return { skillId: g.skillId, skillSource: 'auto', aiCheckedAt: null };
+  if (parent && parent.skillId) return { skillId: parent.skillId, skillSource: 'auto', aiCheckedAt: null };
+  return { skillId: null, skillSource: null, aiCheckedAt: null };
+}
+function addItem(spec) {
+  const tk = todayKey();
+  const parent = spec.parentId ? itemById(spec.parentId) : null;
+  const type = parent ? parent.type : (spec.type === 'habit' ? 'habit' : 'task');
+  const it = Game.normalizeItem(Object.assign({
+    id: Game.newId(), text: spec.text, notes: spec.notes || '', type,
+    categoryId: parent ? parent.categoryId : (spec.categoryId || defaultCategoryId()),
+    tier: spec.tier || Game.DEFAULT_TIER, parentId: parent ? parent.id : null,
+    due: spec.due || null, repeat: spec.repeat || (type === 'habit' ? { kind: 'daily' } : null),
+    timesPerDay: spec.timesPerDay || 1,
+    sortOrder: S.items.reduce((m, i) => Math.max(m, i.sortOrder), 0) + 1, createdAt: nowIso()
+  }, initialSkill(spec.text, spec, parent)), tk);
+  if (parent) { it.repeat = null; it.timesPerDay = 1; }
+  S.items.push(it);
+  persist([{ store: 'items', put: it }]);
+  SkillAI.schedule();
+  return it;
+}
+function updateItem(id, patch) {
+  const it = itemById(id); if (!it) return null;
+  const tk = todayKey();
+  // New wording may mean a new skill: re-guess now (unless Claude or you picked it) and let Claude re-check.
+  let reguess = null;
+  const textChanged = patch.text !== undefined && patch.text !== it.text && it.skillSource !== 'user';
+  if (textChanged) {
+    patch = Object.assign({}, patch, { aiCheckedAt: null });
+    if (it.skillSource !== 'ai') { const g = Game.inferSkill(patch.text, S.skills); if (g && g.skillId !== it.skillId) reguess = g.skillId; }
+  }
+  const next = Game.normalizeItem(Object.assign({}, it, patch), tk);
+  if (next.parentId) { const p = itemById(next.parentId); if (p) { next.type = p.type; next.categoryId = p.categoryId; next.repeat = null; next.due = null; next.timesPerDay = 1; } }
+  Object.assign(it, next);
+  const ops = [{ store: 'items', put: it }];
+  if (!it.parentId) {
+    for (const c of childrenOf(it.id)) { // children follow the parent's type & list
+      if (c.type !== it.type || c.categoryId !== it.categoryId) { c.type = it.type; c.categoryId = it.categoryId; c.due = null; c.repeat = null; ops.push({ store: 'items', put: c }); }
+    }
+  }
+  persist(ops);
+  if (reguess) reassignSkill(it, reguess, 'auto');
+  if (textChanged) SkillAI.schedule();
+  return it;
+}
+// Point an item (and its whole completion history) at a skill. Returns the XP that moved.
+function reassignSkill(it, skillId, source, opts) {
+  it.skillId = skillId || null;
+  it.skillSource = skillId ? source : (source === 'user' ? 'user' : null);
+  if (opts && opts.checkedAt) it.aiCheckedAt = opts.checkedAt;
+  const ops = [{ store: 'items', put: it }];
+  const moved = Game.completionsToReassign(S.completions, it.id, it.skillId);
+  let xp = 0;
+  for (const c of moved) { c.skillId = it.skillId; xp += Number(c.xp) || 0; ops.push({ store: 'completions', put: c }); }
+  if (opts && opts.ops) opts.ops.push(...ops); else { persist(ops); recompute(); }
+  return { xp, moved };
+}
+function setItemSkill(id, skillId) {
+  const it = itemById(id); if (!it) return;
+  const r = reassignSkill(it, skillId, 'user');
+  const sk = skillById(skillId);
+  if (r.xp > 0) toast(sk ? `Moved ${fmtNum(r.xp)} XP to ${sk.icon} ${sk.name}` : `${fmtNum(r.xp)} XP no longer counts toward a skill`);
+  runAchievementChecks();
+}
+let pendingUndo = null;
+function deleteItem(id, opts) {
+  const it = itemById(id); if (!it) return;
+  const doomed = [it, ...(it.parentId ? [] : childrenOf(id))];
+  const ids = new Set(doomed.map(d => d.id));
+  S.items = S.items.filter(i => !ids.has(i.id));
+  persist(doomed.map(d => ({ store: 'items', del: d.id })));
+  if (!(opts && opts.silent)) {
+    pendingUndo = { items: doomed };
+    toast('Deleted', { action: 'Undo', onAction: () => { if (!pendingUndo) return; const back = pendingUndo.items; pendingUndo = null; S.items.push(...back); persist(back.map(d => ({ store: 'items', put: d }))); render(); }, ms: 4000 });
+  }
+}
+function toggleItem(id, anchor) {
+  const it = itemById(id); if (!it) return;
+  const tk = todayKey();
+  const ib = Game.byId(S.items);
+  if (Game.isDone(it, ib, IDX, tk)) {
+    const plan = Game.planUncomplete(gameState(), id, new Date());
+    if (!plan.removeCompletionIds.length) return;
+    removeCompletions(plan.removeCompletionIds);
+    Boost.hide();
+    render();
+    return;
+  }
+  const before = TOTALS;
+  const plan = Game.planComplete(gameState(), id, new Date());
+  if (!plan.completions.length) return;
+  const ops = [];
+  for (const inf of plan.inferred) { // skill decided at check-off for items that had none
+    const x = itemById(inf.itemId);
+    if (x && !x.skillId) { x.skillId = inf.skillId; x.skillSource = 'auto'; x.aiCheckedAt = null; ops.push({ store: 'items', put: x }); }
+  }
+  S.completions.push(...plan.completions);
+  for (const c of plan.completions) ops.push({ store: 'completions', put: c });
+  persist(ops);
+  recompute();
+  for (const c of plan.completions) { sticky.add(c.itemId); justDone.add(c.itemId); }
+  const rect = anchor && anchor.getBoundingClientRect ? anchor.getBoundingClientRect() : null;
+  floatXp(rect, plan.completions.reduce((s, c) => s + c.xp, 0));
+  Boost.show(gainsBySkill(plan.completions), before, TOTALS);
+  for (const ev of Game.diffLevels(before, TOTALS)) if (ev.scope === 'overall') FB.push(ev);
+  runAchievementChecks();
+  render();
+  if (plan.inferred.length || plan.completions.some(c => !c.skillId)) SkillAI.schedule(800);
+}
+function gainsBySkill(completions) {
+  const m = new Map();
+  for (const c of completions) { const k = c.skillId || null; m.set(k, (m.get(k) || 0) + (Number(c.xp) || 0)); }
+  return [...m].map(([skillId, xp]) => ({ skillId, xp })).sort((a, b) => (a.skillId ? 0 : 1) - (b.skillId ? 0 : 1) || b.xp - a.xp);
+}
+function removeCompletions(ids) {
+  const rm = new Set(ids);
+  S.completions = S.completions.filter(c => !rm.has(c.id));
+  persist(ids.map(cid => ({ store: 'completions', del: cid })));
+  recompute();
+}
+function runAchievementChecks() {
+  const res = Game.checkAchievements(gameState(), new Date());
+  if (!res.unlocked.length && !res.created.length) return;
+  const ops = [];
+  for (const u of res.unlocked) { const i = S.achievements.findIndex(a => a.id === u.id); if (i >= 0) S.achievements[i] = u; else S.achievements.push(u); ops.push({ store: 'achievements', put: u }); FB.push({ type: 'achievement', ach: u }); }
+  for (const c of res.created) { S.achievements.push(c); ops.push({ store: 'achievements', put: c }); }
+  persist(ops);
+}
+function addCategory(spec) {
+  const c = { id: Game.newId(), name: spec.name.trim() || 'Untitled', color: spec.color, icon: spec.icon || '📋', sortOrder: S.categories.reduce((m, x) => Math.max(m, x.sortOrder), -1) + 1, createdAt: nowIso() };
+  S.categories.push(c); persist([{ store: 'categories', put: c }]); return c;
+}
+function updateCategory(id, patch) { const c = catById(id); if (!c) return; Object.assign(c, patch); persist([{ store: 'categories', put: c }]); }
+function deleteCategory(id) {
+  const items = S.items.filter(i => i.categoryId === id);
+  const ids = new Set(items.map(i => i.id));
+  S.items = S.items.filter(i => !ids.has(i.id));
+  S.categories = S.categories.filter(c => c.id !== id);
+  const ops = [{ store: 'categories', del: id }, ...items.map(i => ({ store: 'items', del: i.id }))];
+  if (S.settings.defaultCategoryId === id) { S.settings.defaultCategoryId = (sortedCats()[0] || {}).id || null; ops.push({ store: 'settings', put: S.settings }); }
+  persist(ops);
+}
+function addSkill(spec) {
+  const s = { id: Game.newId(), name: spec.name.trim() || 'Skill', icon: spec.icon || '⭐', color: spec.color, hint: (spec.hint || '').trim(), sortOrder: S.skills.reduce((m, x) => Math.max(m, x.sortOrder), -1) + 1, createdAt: nowIso() };
+  S.skills.push(s); persist([{ store: 'skills', put: s }]);
+  resortItems();
+  return s;
+}
+function updateSkill(id, patch) {
+  const s = skillById(id); if (!s) return;
+  const hintChanged = patch.hint !== undefined && patch.hint.trim() !== s.hint;
+  Object.assign(s, patch, patch.hint !== undefined ? { hint: patch.hint.trim() } : {});
+  persist([{ store: 'skills', put: s }]);
+  if (hintChanged) resortItems();
+}
+// After the skill set changes: unmatched items get a local guess, and Claude re-checks everything you didn't pick yourself.
+function resortItems() {
+  const ops = [];
+  for (const it of S.items) {
+    if (it.skillSource === 'user') continue;
+    if (!it.skillId) { const g = Game.inferSkill(it.text, S.skills); if (g) reassignSkill(it, g.skillId, 'auto', { ops }); }
+    if (it.aiCheckedAt) { it.aiCheckedAt = null; ops.push({ store: 'items', put: it }); }
+  }
+  if (ops.length) { persist(ops); recompute(); }
+  if (SkillAI.enabled()) { SkillAI.schedule(600); toast('Claude will re-sort your items into skills'); }
+}
+function deleteSkill(id) {
+  const ops = [{ store: 'skills', del: id }];
+  S.skills = S.skills.filter(s => s.id !== id);
+  for (const it of S.items) {
+    if (it.skillId !== id) continue;
+    const g = Game.inferSkill(it.text, S.skills);
+    reassignSkill(it, g ? g.skillId : null, 'auto', { ops });
+    it.aiCheckedAt = null;
+  }
+  for (const c of S.completions) if (c.skillId === id) { c.skillId = null; ops.push({ store: 'completions', put: c }); }
+  persist(ops); recompute();
+  SkillAI.schedule(600);
+}
+function saveAchievement(a) { const i = S.achievements.findIndex(x => x.id === a.id); if (i >= 0) S.achievements[i] = a; else S.achievements.push(a); persist([{ store: 'achievements', put: a }]); }
+function deleteAchievement(id) { S.achievements = S.achievements.filter(a => a.id !== id); persist([{ store: 'achievements', del: id }]); }
+function unlockManual(id) { const a = S.achievements.find(x => x.id === id); if (!a || a.unlockedAt) return; a.unlockedAt = nowIso(); persist([{ store: 'achievements', put: a }]); FB.push({ type: 'achievement', ach: a }); }
+
+// ---------- feedback ----------
+let activeToast = null; // one toast at a time; a new one replaces the old
+function toast(text, opts) {
+  opts = opts || {};
+  if (activeToast) activeToast.kill();
+  const el = document.createElement('div');
+  el.className = 'toast' + (opts.cls ? ' ' + opts.cls : '');
+  el.innerHTML = `<span>${esc(text)}</span>${opts.action ? `<button>${esc(opts.action)}</button>` : ''}`;
+  if (opts.action) el.querySelector('button').addEventListener('click', () => { kill(); opts.onAction && opts.onAction(); });
+  document.body.appendChild(el);
+  let timer = setTimeout(kill, opts.ms || 1800);
+  function kill() { clearTimeout(timer); if (activeToast === handle) activeToast = null; el.classList.add('out'); setTimeout(() => el.remove(), 200); }
+  const handle = { el, kill, hasAction: !!opts.action, extend(ms) { clearTimeout(timer); timer = setTimeout(kill, ms); } };
+  activeToast = handle;
+  return handle;
+}
+// Count a number up (or down) over `ms`, easing out.
+function countUp(el, from, to, ms, prefix) {
+  if (!el) return;
+  prefix = prefix || '';
+  cancelAnimationFrame(el._raf);
+  if (!ms || reduceMotion()) { el.textContent = prefix + fmtNum(to); return; }
+  const start = performance.now();
+  const step = now => {
+    const k = Math.min(1, (now - start) / ms);
+    el.textContent = prefix + fmtNum(Math.round(from + (to - from) * (1 - Math.pow(1 - k, 3))));
+    if (k < 1) el._raf = requestAnimationFrame(step);
+  };
+  el._raf = requestAnimationFrame(step);
+}
+// "+25 XP" rising from the checkbox you tapped.
+function floatXp(rect, xp) {
+  if (!rect || !xp || reduceMotion()) return;
+  const el = document.createElement('div');
+  el.className = 'floater';
+  el.textContent = `+${fmtNum(xp)} XP`;
+  el.style.left = (rect.left + rect.width / 2) + 'px';
+  el.style.top = (rect.top - 6) + 'px';
+  document.body.appendChild(el);
+  setTimeout(() => el.remove(), 1000);
+}
+// Completion card: which skill got the XP, its bar filling, level-ups inside the card. Coalesces quick check-offs.
+const Boost = {
+  el: null, rows: new Map(), total: 0, timer: null, lvl: false,
+  show(gains, before, after) {
+    if (!gains.length) return;
+    if (activeToast && !activeToast.hasAction) activeToast.kill(); // the card takes the toast's spot
+    if (!this.el || !this.el.isConnected || this.el.classList.contains('out')) this.create();
+    for (const g of gains) this.addGain(g, before, after);
+    const prev = this.total;
+    this.total += gains.reduce((s, g) => s + g.xp, 0);
+    countUp(this.el.querySelector('.boost-total b'), prev, this.total, 500);
+    this.arm(this.lvl ? 3400 : 2500);
+  },
+  create() {
+    if (this.el) this.el.remove();
+    this.rows = new Map(); this.total = 0; this.lvl = false;
+    const el = document.createElement('div');
+    el.className = 'boost';
+    el.setAttribute('role', 'status');
+    el.setAttribute('aria-live', 'polite');
+    el.innerHTML = `<div class="boost-top"><span class="praise">${esc(PRAISE[Math.floor(Math.random() * PRAISE.length)])}</span><span class="boost-total">+<b>0</b> XP</span></div><div class="boost-rows"></div>`;
+    el.addEventListener('click', () => this.hide());
+    document.body.appendChild(el);
+    this.el = el;
+  },
+  addGain(g, before, after) {
+    const sk = skillById(g.skillId);
+    const key = sk ? sk.id : '__overall';
+    const toXp = sk ? (after.bySkill[sk.id] || 0) : after.overall;
+    let row = this.rows.get(key);
+    if (!row) {
+      if (this.rows.size >= 3) return; // keep the card small; the total still counts it
+      const fromXp = sk ? (before.bySkill[sk.id] || 0) : before.overall;
+      const color = sk ? skColor(sk) : 'var(--tint)';
+      const el = document.createElement('div');
+      el.className = 'boost-row';
+      el.innerHTML = `<span class="bic" style="background:${color}">${sk ? esc(sk.icon) : '⭐'}</span><div class="bmid"><div class="bline"><span class="bname">${sk ? esc(sk.name) : 'Overall'}</span><span class="blv"></span></div><div class="bar"><i style="background:${color}"></i></div></div><span class="bgain">+0</span>`;
+      this.el.querySelector('.boost-rows').appendChild(el);
+      row = { el, gain: 0, xp: fromXp, t: null };
+      this.rows.set(key, row);
+    }
+    const prevGain = row.gain;
+    row.gain += g.xp;
+    countUp(row.el.querySelector('.bgain'), prevGain, row.gain, 500, '+');
+    this.animateBar(row, row.xp, toXp);
+    row.xp = toXp;
+  },
+  animateBar(row, fromXp, toXp) {
+    const a = Game.levelFromXp(fromXp), b = Game.levelFromXp(toXp);
+    const bar = row.el.querySelector('.bar i'), lv = row.el.querySelector('.blv');
+    clearTimeout(row.t);
+    const levelUp = () => { row.el.classList.remove('lvup'); void row.el.offsetWidth; row.el.classList.add('lvup'); lv.textContent = `Level ${b.level}!`; this.lvl = true; };
+    if (reduceMotion()) { bar.style.width = pct(b.fraction); if (b.level > a.level) levelUp(); else lv.textContent = `Lv ${b.level}`; return; }
+    bar.style.transition = 'none';
+    bar.style.width = pct(a.fraction);
+    if (!row.el.classList.contains('lvup')) lv.textContent = `Lv ${a.level}`;
+    void bar.offsetWidth;
+    if (b.level === a.level) {
+      bar.style.transition = 'width .75s cubic-bezier(.2,.8,.2,1)';
+      bar.style.width = pct(b.fraction);
+      return;
+    }
+    bar.style.transition = 'width .45s cubic-bezier(.4,0,.6,1)';
+    bar.style.width = '100%';
+    row.t = setTimeout(() => {
+      levelUp();
+      bar.style.transition = 'none';
+      bar.style.width = '0%';
+      void bar.offsetWidth;
+      bar.style.transition = 'width .6s cubic-bezier(.2,.8,.2,1)';
+      bar.style.width = pct(b.fraction);
+    }, 470);
+  },
+  arm(ms) { clearTimeout(this.timer); this.timer = setTimeout(() => this.hide(), ms); },
+  hide() {
+    clearTimeout(this.timer);
+    const el = this.el; this.el = null;
+    if (!el) return;
+    el.classList.add('out');
+    setTimeout(() => el.remove(), 250);
+  }
+};
+const FB = {
+  q: [], busy: false,
+  push(ev) { this.q.push(ev); this.run(); },
+  async run() { if (this.busy) return; this.busy = true; while (this.q.length) await showBanner(this.q.shift()); this.busy = false; }
+};
+function showBanner(ev) {
+  return new Promise(res => {
+    const el = document.createElement('div');
+    el.className = 'banner';
+    let icon, k, v;
+    if (ev.type === 'levelup') { icon = '⬆️'; k = ev.scope === 'overall' ? 'Overall level up' : `${(skillById(ev.id) || {}).name || 'Skill'} level up`; v = `Level ${ev.level}`; }
+    else { icon = ev.ach.icon || '🏆'; k = 'Achievement unlocked'; v = Game.achievementName(ev.ach); }
+    el.innerHTML = `<div class="ic">${esc(icon)}</div><div><div class="k">${esc(k)}</div><div class="v">${esc(v)}</div></div>`;
+    document.body.appendChild(el);
+    const done = () => { el.classList.add('out'); setTimeout(() => { el.remove(); res(); }, 250); };
+    el.addEventListener('click', done, { once: true });
+    setTimeout(done, ev.type === 'levelup' ? 2200 : 2600);
+  });
+}
+
+// ---------- routing ----------
+let sticky = new Set(); // items completed in the current view; stay visible until navigation
+const justDone = new Set(); // items completed by the last tap: their checkbox pops once
+function route() {
+  const h = location.hash || '#/';
+  let m;
+  if ((m = /^#\/list\/([^/?]+)/.exec(h))) return { view: 'list', id: decodeURIComponent(m[1]) };
+  if ((m = /^#\/skill\/([^/?]+)/.exec(h))) return { view: 'skill', id: decodeURIComponent(m[1]) };
+  if (h.startsWith('#/skills')) return { view: 'skills' };
+  if (h.startsWith('#/achievements')) return { view: 'achievements' };
+  if (h.startsWith('#/settings')) return { view: 'settings' };
+  return { view: 'home' };
+}
+window.addEventListener('hashchange', () => { sticky = new Set(); closeAllRows(); render(); scrollTop(); });
+function scrollTop() { const c = $('.content'); if (c) c.scrollTop = 0; }
+function go(hash) { if (location.hash === hash) render(); else location.hash = hash; }
+
+// ---------- rendering ----------
+const app = $('#app');
+let booted = false;
+function render() {
+  if (!booted) return;
+  if (IS_IOS_TAB && !sessionStorage.getItem('skipGate')) return renderGate();
+  if (!S.settings.onboarded) return renderOnboarding();
+  const r = route();
+  if (r.view === 'list') renderList(r.id);
+  else if (r.view === 'skills') renderSkills();
+  else if (r.view === 'skill') renderSkill(r.id);
+  else if (r.view === 'achievements') renderAchievements();
+  else if (r.view === 'settings') renderSettings();
+  else renderHome();
+  Sheet.rerender();
+  justDone.clear();
+}
+function renderGate() {
+  app.innerHTML = `<div class="screen"><div class="intro">
+    <div class="logo">${ICONS.check}</div>
+    <h1>Add to your Home Screen</h1>
+    <p>This app keeps everything on your phone and works offline once it's installed.</p>
+    <ol>
+      <li>Tap the <b>Share</b> button <span style="vertical-align:middle;display:inline-block;width:20px;height:20px;color:var(--tint)">${ICONS.share}</span> in Safari's toolbar.</li>
+      <li>Choose <b>Add to Home Screen</b>.</li>
+      <li>Tap <b>Add</b>, then open <b>Habits</b> from your Home Screen.</li>
+    </ol>
+    <button class="link" data-act="skip-gate">Continue in Safari anyway</button>
+  </div></div>`;
+}
+function renderOnboarding() {
+  app.innerHTML = `<div class="screen"><div class="intro">
+    <div class="logo">${ICONS.check}</div>
+    <h1>Habits</h1>
+    <p>Tasks and habits, Reminders-style, with a light game on top.</p>
+    <ol>
+      <li><b>Check things off</b> to earn XP. Harder items (tier 1–5) pay more.</li>
+      <li><b>Every item boosts a skill</b>, picked for you: journaling → Clarity, lifting → Strength, reading → Learning.</li>
+      <li><b>Skills, your level and achievements</b> live in the Skills tab. No level cap.</li>
+    </ol>
+    <p>Quick entry: <b>!3</b> tier, <b>#list</b>, <b>+clarity</b> skill, <b>@tomorrow</b> due, <b>^daily</b> habit, <b>x8</b> times a day.</p>
+    <button class="btn primary" data-act="onboard-done">Get started</button>
+  </div></div>`;
+}
+function homeCounts() {
+  const tk = todayKey(), ib = Game.byId(S.items);
+  const c = { today: 0, scheduled: 0, all: 0, completed: S.completions.length };
+  for (const it of S.items) {
+    if (it.parentId) continue;
+    const done = Game.isDone(it, ib, IDX, tk);
+    if (it.type === 'habit') { c.all++; if (Game.isScheduledOn(it, tk) && !done) c.today++; }
+    else { if (done) continue; c.all++; if (it.due) { c.scheduled++; if (it.due <= tk) c.today++; } }
+  }
+  return c;
+}
+function tabBarHTML(active) {
+  return `<nav class="tabbar"><a class="tab ${active === 'lists' ? 'on' : ''}" href="#/" aria-label="Lists">${ICONS.lists}<span>Lists</span></a><a class="tab ${active === 'skills' ? 'on' : ''}" href="#/skills" aria-label="Skills">${ICONS.bolt}<span>Skills</span></a></nav>`;
+}
+function needsBackupNudge() {
+  const ref = S.settings.lastBackupAt || S.settings.firstLaunchAt;
+  if (!ref) return false;
+  return (Date.now() - Date.parse(ref)) > 7 * 86400000 && S.completions.length + S.items.length > 0;
+}
+function renderHome() {
+  const c = homeCounts();
+  const tiles = [
+    ['today', 'Today', ICONS.today, 'var(--c-blue)', c.today], ['scheduled', 'Scheduled', ICONS.scheduled, 'var(--c-red)', c.scheduled],
+    ['all', 'All', ICONS.all, 'var(--text2)', c.all], ['completed', 'Completed', ICONS.completed, 'var(--c-green)', c.completed]
+  ].map(([id, lbl, ic, col, n]) => `<a class="tile" href="#/list/${id}"><div class="top"><span class="ic" style="background:${col}">${ic}</span><span class="n">${fmtNum(n)}</span></div><div class="lbl">${lbl}</div></a>`).join('');
+  const ib = Game.byId(S.items), tk = todayKey();
+  const cats = sortedCats().map(cat => {
+    const n = S.items.filter(i => !i.parentId && i.categoryId === cat.id && (i.type === 'habit' || !Game.isDone(i, ib, IDX, tk))).length;
+    return `<a class="catrow" href="#/list/${cat.id}"><span class="catic" style="background:${catColor(cat)}">${esc(cat.icon)}</span><span class="name">${esc(cat.name)}</span><span class="right">${n}${ICONS.chevR}</span></a>`;
+  }).join('');
+  app.innerHTML = `<div class="screen">
+    <div class="nav"><div class="spacer"></div><button class="navbtn" data-act="capture" aria-label="Capture from photo">${ICONS.camera}</button><a class="navbtn" href="#/settings" aria-label="Settings">${ICONS.settings}</a></div>
+    <div class="content tabbed">
+      ${needsBackupNudge() ? `<div class="nudge" style="margin-top:0"><div class="t"><b>Back up your data</b>${S.settings.lastBackupAt ? 'Last backup ' + relDate(S.settings.lastBackupAt) : 'No backup yet'}</div><button data-act="export">Export</button></div>` : ''}
+      <div class="smart" style="margin-top:4px">${tiles}</div>
+      <div class="section">My Lists</div>
+      <div class="card">${cats || '<div class="empty">No lists yet</div>'}</div>
+      <div class="addlist"><button data-act="add-list">${ICONS.plus} Add List</button></div>
+    </div>
+    ${tabBarHTML('lists')}
+  </div>`;
+}
+// ---------- skills tab ----------
+function renderSkills() {
+  const lv = Game.levelFromXp(TOTALS.overall);
+  const unlocked = S.achievements.filter(a => a.unlockedAt).length;
+  const tiles = sortedSkills().map(sk => {
+    const l = Game.levelFromXp(TOTALS.bySkill[sk.id] || 0);
+    return `<a class="sktile" href="#/skill/${encodeURIComponent(sk.id)}" data-skill="${sk.id}"><div class="sk-top"><span class="catic" style="background:${skColor(sk)}">${esc(sk.icon)}</span><span class="sk-lv">Lv ${l.level}</span></div><div class="sk-name">${esc(sk.name)}</div><div class="bar"><i style="width:${pct(l.fraction)};background:${skColor(sk)}"></i></div><div class="sk-xp">${fmtNum(l.into)} / ${fmtNum(l.needed)} XP</div></a>`;
+  }).join('');
+  const unsorted = S.items.filter(i => !i.skillId).length;
+  const pending = SkillAI.pending().length;
+  let note = '';
+  if (unsorted) note = `${unsorted} item${unsorted === 1 ? ' isn’t' : 's aren’t'} linked to a skill yet. ${SkillAI.enabled() ? 'Claude will sort ' + (unsorted === 1 ? 'it' : 'them') + ' when you’re online.' : 'Add your API key in Settings to let Claude sort them, or pick one in the item’s details.'}`;
+  else if (pending && SkillAI.enabled()) note = `Claude is double-checking ${pending} item${pending === 1 ? '' : 's'}.`;
+  app.innerHTML = `<div class="screen">
+    <div class="nav"><div class="spacer"></div><button class="navbtn" data-act="skill-new" aria-label="Add skill">${ICONS.plus}</button></div>
+    <div class="content tabbed">
+      <div class="title-lg"><span>Skills</span></div>
+      <div class="card ovr"><div class="ovr-top"><div><div class="ovr-k">Overall</div><div class="ovr-lv">Level ${lv.level}</div></div><div class="ovr-xp">${fmtNum(lv.into)} / ${fmtNum(lv.needed)} XP<br>${fmtNum(TOTALS.overall)} XP total</div></div><div class="bar"><i style="width:${pct(lv.fraction)}"></i></div></div>
+      <a class="card achrow" href="#/achievements"><span class="catic trophy-ic">🏆</span><span class="name">Achievements</span><span class="right">${unlocked} unlocked${ICONS.chevR}</span></a>
+      <div class="skgrid">${tiles || '<div class="empty" style="grid-column:1/-1">No skills. Add one with +.</div>'}</div>
+      ${note ? `<div class="sknote">${esc(note)}</div>` : ''}
+    </div>
+    ${tabBarHTML('skills')}
+  </div>`;
+}
+function skillItems(id) {
+  const tk = todayKey(), ib = Game.byId(S.items);
+  return S.items.filter(it => it.skillId === id && (Game.rootOf(it, ib).type === 'habit' || !Game.isDone(it, ib, IDX, tk) || sticky.has(it.id)))
+    .sort((a, b) => a.sortOrder - b.sortOrder);
+}
+function renderSkill(id) {
+  const sk = skillById(id);
+  if (!sk) { app.innerHTML = `<div class="screen"><div class="nav"><a class="navbtn" href="#/skills">${ICONS.chevL}Skills</a></div><div class="content"><div class="empty">This skill no longer exists.</div></div></div>`; return; }
+  const xp = TOTALS.bySkill[sk.id] || 0;
+  const l = Game.levelFromXp(xp);
+  const tk = todayKey(), ib = Game.byId(S.items);
+  const items = skillItems(sk.id);
+  const ctx = { tk, ib, showCategory: true, flat: true, hideSkill: true };
+  app.innerHTML = `<div class="screen">
+    <div class="nav"><a class="navbtn" href="#/skills" aria-label="Back">${ICONS.chevL}Skills</a><div class="spacer"></div><button class="navbtn" data-act="skill-edit" data-id="${sk.id}" aria-label="Edit skill">${ICONS.more}</button></div>
+    <div class="content">
+      <div class="skhead"><span class="big" style="background:${skColor(sk)}">${esc(sk.icon)}</span><div><div class="title-lg" style="color:${skColor(sk)}">${esc(sk.name)}</div><div class="sub">Level ${l.level} · ${fmtNum(xp)} XP total</div></div></div>
+      <div class="skprog"><div class="bar"><i style="width:${pct(l.fraction)};background:${skColor(sk)}"></i></div><div class="row1"><span>${fmtNum(l.into)} / ${fmtNum(l.needed)} XP</span><span>Level ${l.level + 1} next</span></div>${sk.hint ? `<div class="skhint">Counts: ${esc(sk.hint)}</div>` : ''}</div>
+      <div class="group-h">Boosted by</div>
+      <div class="card" id="listbody">${items.length ? items.map(it => rowHTML(it, ctx)).join('') : `<div class="empty">Nothing boosts ${esc(sk.name)} yet. Items are matched automatically as you add them.</div>`}</div>
+    </div>
+  </div>`;
+}
+function relDate(isoStr) {
+  const d = Date.parse(isoStr); if (!d) return '';
+  const days = Math.floor((Date.now() - d) / 86400000);
+  return days <= 0 ? 'today' : days === 1 ? 'yesterday' : `${days} days ago`;
+}
+function dueLabel(due, tk) {
+  if (due === tk) return 'Today';
+  if (due === Game.addDays(tk, 1)) return 'Tomorrow';
+  if (due === Game.addDays(tk, -1)) return 'Yesterday';
+  const d = Game.parseDay(due);
+  const sameYear = d.getFullYear() === Game.parseDay(tk).getFullYear();
+  return d.toLocaleDateString(undefined, sameYear ? { weekday: 'short', month: 'short', day: 'numeric' } : { month: 'short', day: 'numeric', year: 'numeric' });
+}
+function rowHTML(it, ctx) {
+  const root = it.parentId ? (itemById(it.parentId) || it) : it;
+  const cat = catById(root.categoryId);
+  const st = Game.doneState(it, ctx.ib, IDX, ctx.tk);
+  const meta = [];
+  if (!it.parentId) {
+    if (it.type === 'task' && it.due) { const s = Game.dueStatus(it, ctx.tk); meta.push(`<span class="${s === 'overdue' ? 'over' : ''}">${esc(dueLabel(it.due, ctx.tk))}</span>`); }
+    if (it.type === 'habit') {
+      const sk = Game.streak(it, IDX, ctx.tk);
+      if (sk.current > 0) meta.push(`<span>🔥 ${sk.current}</span>`);
+      if (st.target > 1) meta.push(`<span>${st.count}/${st.target} today</span>`);
+      else if (it.repeat && it.repeat.kind !== 'daily') meta.push(`<span>${esc(Game.repeatLabel(it.repeat))}</span>`);
+    }
+  }
+  const sk = ctx.hideSkill ? null : skillById(it.skillId);
+  meta.push(`<span class="chip"${sk ? ` title="Boosts ${esc(sk.name)}"` : ''}>${sk ? esc(sk.icon) + ' ' : ''}${Game.xpForTier(it.tier)} XP</span>`);
+  if (ctx.flat && it.parentId && root !== it) meta.push(`<span>in ${esc(root.text)}</span>`);
+  if (ctx.showCategory && cat && (!it.parentId || ctx.flat)) meta.push(`<span><i class="dot" style="background:${catColor(cat)}"></i>${esc(cat.name)}</span>`);
+  const partial = !st.done && st.target > 1 && st.count > 0;
+  return `<div class="swipe" data-id="${it.id}"><div class="row ${it.parentId && !ctx.flat ? 'sub' : ''} ${st.done ? 'done' : ''}">
+    <button class="checkwrap" data-act="toggle" data-id="${it.id}" aria-label="${st.done ? 'Completed' : 'Complete'}"><span class="check ${st.done ? 'done' : ''} ${partial ? 'partial' : ''} ${justDone.has(it.id) ? 'pop' : ''}" style="--c:${catColor(cat)}" data-n="${st.count}"></span></button>
+    <div class="body" data-act="open" data-id="${it.id}"><div class="txt">${esc(it.text)}</div><div class="meta">${meta.join('')}</div></div>
+  </div><button class="row-del" data-act="delete" data-id="${it.id}">Delete</button></div>`;
+}
+function familyHTML(roots, ctx) {
+  const parts = [];
+  for (const it of roots) {
+    parts.push(rowHTML(it, ctx));
+    for (const c of childrenOf(it.id)) {
+      const done = Game.isDone(c, ctx.ib, IDX, ctx.tk);
+      if (it.type === 'habit' || !done || sticky.has(c.id) || ctx.showAllChildren) parts.push(rowHTML(c, ctx));
+    }
+  }
+  return parts.join('');
+}
+function listSpec(id) {
+  const tk = todayKey(), ib = Game.byId(S.items);
+  const ctx = { tk, ib, showCategory: false };
+  const roots = S.items.filter(i => !i.parentId).sort((a, b) => a.sortOrder - b.sortOrder);
+  const taskVisible = it => !Game.isDone(it, ib, IDX, tk) || sticky.has(it.id);
+  const spec = { id, title: '', color: 'var(--tint)', groups: [], count: 0, newItem: true, ctx, cat: null, icon: '' };
+  if (id === 'today') {
+    spec.title = 'Today'; spec.color = 'var(--c-blue)'; ctx.showCategory = true;
+    const list = roots.filter(it => it.type === 'habit' ? Game.isScheduledOn(it, tk) : (it.due && it.due <= tk && taskVisible(it)));
+    spec.groups.push({ label: null, items: list });
+    spec.count = list.filter(it => !Game.isDone(it, ib, IDX, tk)).length;
+    spec.newDue = tk;
+  } else if (id === 'scheduled') {
+    spec.title = 'Scheduled'; spec.color = 'var(--c-red)'; ctx.showCategory = true;
+    const list = roots.filter(it => it.type === 'task' && it.due && taskVisible(it)).sort((a, b) => a.due < b.due ? -1 : a.due > b.due ? 1 : a.sortOrder - b.sortOrder);
+    const groups = new Map();
+    for (const it of list) {
+      const key = it.due < tk ? 'Overdue' : dueLabel(it.due, tk);
+      if (!groups.has(key)) groups.set(key, []);
+      groups.get(key).push(it);
+    }
+    for (const [label, items] of groups) spec.groups.push({ label, items });
+    spec.count = list.filter(it => !Game.isDone(it, ib, IDX, tk)).length;
+    spec.newDue = tk;
+  } else if (id === 'all') {
+    spec.title = 'All'; spec.color = 'var(--text2)';
+    for (const cat of sortedCats()) {
+      const items = roots.filter(it => it.categoryId === cat.id && (it.type === 'habit' || taskVisible(it)));
+      if (items.length) spec.groups.push({ label: cat.name, items, cat });
+      spec.count += items.filter(it => !Game.isDone(it, ib, IDX, tk)).length;
+    }
+    const orphans = roots.filter(it => !catById(it.categoryId) && (it.type === 'habit' || taskVisible(it)));
+    if (orphans.length) spec.groups.push({ label: 'No list', items: orphans });
+  } else if (id === 'completed') {
+    spec.title = 'Completed'; spec.color = 'var(--c-green)'; spec.newItem = false; spec.completed = true; spec.count = S.completions.length;
+  } else {
+    const cat = catById(id);
+    if (!cat) { spec.title = 'Missing list'; spec.newItem = false; return spec; }
+    spec.cat = cat; spec.title = cat.name; spec.color = catColor(cat); spec.icon = cat.icon;
+    const items = roots.filter(it => it.categoryId === cat.id && (it.type === 'habit' || taskVisible(it)));
+    spec.groups.push({ label: null, items });
+    spec.count = items.filter(it => !Game.isDone(it, ib, IDX, tk)).length;
+  }
+  return spec;
+}
+function listBodyHTML(spec) {
+  if (spec.completed) return completedHTML();
+  const parts = [];
+  let first = true;
+  for (const g of spec.groups) {
+    if (g.label) parts.push(`<div class="group-h ${first ? 'first' : ''}">${g.cat ? `<i class="dot" style="display:inline-block;width:8px;height:8px;border-radius:4px;background:${catColor(g.cat)};margin-right:6px"></i>` : ''}${esc(g.label)}</div>`);
+    parts.push(`<div class="card">${familyHTML(g.items, spec.ctx)}</div>`);
+    first = false;
+  }
+  if (!spec.groups.some(g => g.items.length)) return `<div class="empty">${spec.id === 'today' ? 'Nothing due today' : 'No items'}</div>`;
+  return parts.join('');
+}
+function completedHTML() {
+  const tk = todayKey();
+  const list = S.completions.slice().sort((a, b) => (a.at < b.at ? 1 : a.at > b.at ? -1 : 0)).slice(0, 300);
+  if (!list.length) return '<div class="empty">Nothing completed yet</div>';
+  const groups = new Map();
+  for (const c of list) { if (!groups.has(c.dayKey)) groups.set(c.dayKey, []); groups.get(c.dayKey).push(c); }
+  const parts = [];
+  let first = true;
+  for (const [day, comps] of groups) {
+    parts.push(`<div class="group-h ${first ? 'first' : ''}">${esc(dueLabel(day, tk))}</div><div class="card">` + comps.map(c => {
+      const it = itemById(c.itemId); const cat = catById(c.categoryId); const csk = skillById(c.skillId);
+      const text = it ? it.text : (c.text || 'Deleted item');
+      return `<div class="swipe" data-cid="${c.id}"><div class="row done"><button class="checkwrap" data-act="uncomplete" data-cid="${c.id}" aria-label="Undo"><span class="check done" style="--c:${catColor(cat)}"></span></button><div class="body"><div class="txt">${esc(text)}</div><div class="meta">${cat ? `<span><i class="dot" style="background:${catColor(cat)}"></i>${esc(cat.name)}</span>` : ''}<span class="chip">${csk ? esc(csk.icon) + ' ' : ''}+${c.xp} XP</span>${csk ? `<span>${esc(csk.name)}</span>` : ''}${c.kind === 'subtask' ? '<span>sub-task</span>' : ''}</div></div></div></div>`;
+    }).join('') + '</div>');
+    first = false;
+  }
+  if (S.completions.length > 300) parts.push(`<div class="center">Showing the latest 300 of ${fmtNum(S.completions.length)}</div>`);
+  return parts.join('');
+}
+function renderList(id) {
+  const spec = listSpec(id);
+  const menu = spec.cat ? `<button class="navbtn" data-act="list-menu" data-id="${spec.cat.id}" aria-label="List options">${ICONS.more}</button>` : '';
+  app.innerHTML = `<div class="screen">
+    <div class="nav"><a class="navbtn" href="#/" aria-label="Back">${ICONS.chevL}Lists</a><div class="spacer"></div>${menu}</div>
+    <div class="content">
+      <div class="title-lg" style="color:${spec.color}">${spec.icon ? `<span>${esc(spec.icon)}</span>` : ''}<span>${esc(spec.title)}</span><span class="count" id="listcount">${fmtNum(spec.count)}</span></div>
+      <div id="listbody">${listBodyHTML(spec)}</div>
+    </div>
+    ${spec.newItem ? `<div class="newwrap"><div class="newrow"><span class="plus">${ICONS.plus}</span><input id="newitem" placeholder="New Item" enterkeyhint="done" autocomplete="off" autocorrect="on" autocapitalize="sentences"><button class="cam" data-act="capture" data-cat="${spec.cat ? spec.cat.id : ''}" aria-label="Capture from photo">${ICONS.camera}</button></div><div class="hint" id="newhint"></div></div>` : ''}
+  </div>`;
+  const inp = $('#newitem');
+  if (inp) {
+    inp.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); submitNewItem(spec); } });
+    inp.addEventListener('input', () => updateHint(spec));
+  }
+}
+function refreshListBody() {
+  const r = route(); if (r.view !== 'list') return render();
+  const spec = listSpec(r.id);
+  const body = $('#listbody'); if (!body) return render();
+  body.innerHTML = listBodyHTML(spec);
+  const cnt = $('#listcount'); if (cnt) cnt.textContent = fmtNum(spec.count);
+}
+function hintFor(parsed, spec) {
+  const bits = [];
+  let sk = skillById(parsed.skillId);
+  if (!sk && parsed.text) { const g = Game.inferSkill(parsed.text, S.skills); if (g) sk = skillById(g.skillId); }
+  if (sk) bits.push(`${sk.icon} ${sk.name}`);
+  if (parsed.tier) bits.push(`Tier ${parsed.tier} · ${Game.xpForTier(parsed.tier)} XP`);
+  if (parsed.categoryId) { const c = catById(parsed.categoryId); if (c) bits.push(c.name); }
+  if (parsed.repeat) bits.push((parsed.timesPerDay ? `×${parsed.timesPerDay} ` : '') + Game.repeatLabel(parsed.repeat) + ' habit');
+  else if (parsed.due) bits.push('Due ' + dueLabel(parsed.due, todayKey()));
+  return bits.join(' · ');
+}
+function updateHint(spec) {
+  const inp = $('#newitem'), h = $('#newhint'); if (!inp || !h) return;
+  const parsed = Game.parseQuickEntry(inp.value, S.categories, todayKey(), S.skills);
+  h.textContent = parsed.text || parsed.tokens.length ? hintFor(parsed, spec) : '';
+}
+function submitNewItem(spec) {
+  const inp = $('#newitem'); if (!inp) return;
+  const parsed = Game.parseQuickEntry(inp.value, S.categories, todayKey(), S.skills);
+  if (!parsed.text) { inp.value = ''; updateHint(spec); return; }
+  addItem({
+    text: parsed.text, tier: parsed.tier || Game.DEFAULT_TIER,
+    categoryId: parsed.categoryId || (spec.cat ? spec.cat.id : defaultCategoryId()),
+    skillId: parsed.skillId, skillSource: parsed.skillId ? 'user' : null,
+    type: parsed.repeat ? 'habit' : 'task', repeat: parsed.repeat, timesPerDay: parsed.timesPerDay || 1,
+    due: parsed.repeat ? null : (parsed.due || spec.newDue || null)
+  });
+  inp.value = '';
+  updateHint(spec);
+  refreshListBody();
+  const c = $('.content'); if (c) c.scrollTop = c.scrollHeight;
+  inp.focus();
+}
+
+// ---------- achievements view ----------
+function renderAchievements() {
+  const ctx = Game.achievementContext(gameState(), new Date());
+  const unlocked = S.achievements.filter(a => a.unlockedAt).sort((a, b) => (a.unlockedAt < b.unlockedAt ? 1 : -1));
+  const locked = S.achievements.filter(a => !a.unlockedAt).map(a => ({ a, p: Game.achievementProgress(a, ctx) })).sort((x, y) => y.p.fraction - x.p.fraction);
+  const row = (a, p) => `<button class="ach ${a.unlockedAt ? 'on' : ''}" data-act="ach-open" data-id="${a.id}"><span class="ic">${esc(a.icon || '🏆')}</span><div class="body"><div class="nm">${esc(Game.achievementName(a))}</div>${a.unlockedAt ? `<div class="sub">Unlocked ${esc(new Date(a.unlockedAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' }))}</div>` : `<div class="sub">${a.kind === 'manual' ? 'Tap to mark done' : `${fmtNum(p.value)} / ${fmtNum(p.threshold)}`}</div>${a.kind === 'manual' ? '' : `<div class="bar thin"><i style="width:${(p.fraction * 100).toFixed(1)}%;background:var(--c-orange)"></i></div>`}`}</div>${ICONS.chevR.replace('class="icon"', 'class="icon chev" style="width:18px;height:18px"')}</button>`;
+  app.innerHTML = `<div class="screen">
+    <div class="nav"><a class="navbtn" href="#/skills" aria-label="Back">${ICONS.chevL}Skills</a><div class="spacer"></div><button class="navbtn" data-act="ach-new" aria-label="New achievement">${ICONS.plus}</button></div>
+    <div class="content">
+      <div class="title-lg" style="color:var(--c-orange)"><span>Achievements</span><span class="count">${unlocked.length}</span></div>
+      ${unlocked.length ? `<div class="group-h first">Unlocked</div><div class="card">${unlocked.map(a => row(a)).join('')}</div>` : ''}
+      <div class="group-h ${unlocked.length ? '' : 'first'}">In progress</div>
+      <div class="card">${locked.length ? locked.map(x => row(x.a, x.p)).join('') : '<div class="empty">Everything unlocked. Add a new one with +.</div>'}</div>
+    </div></div>`;
+}
+
+// ---------- settings view ----------
+async function renderSettings() {
+  const hours = Array.from({ length: 24 }, (_, h) => `<option value="${h}" ${h === S.settings.dayStartHour ? 'selected' : ''}>${h === 0 ? '12 AM (midnight)' : h < 12 ? h + ' AM' : h === 12 ? '12 PM' : (h - 12) + ' PM'}</option>`).join('');
+  const cats = sortedCats().map(c => `<option value="${c.id}" ${c.id === S.settings.defaultCategoryId ? 'selected' : ''}>${esc(c.name)}</option>`).join('');
+  const models = Game.MODEL_PRESETS.map(m => `<option value="${m}" ${m === S.settings.model ? 'selected' : ''}>${m}</option>`).join('') + `<option value="__custom" ${Game.MODEL_PRESETS.includes(S.settings.model) ? '' : 'selected'}>Custom…</option>`;
+  app.innerHTML = `<div class="screen">
+    <div class="nav"><a class="navbtn" href="#/" aria-label="Back">${ICONS.chevL}Lists</a><div class="spacer"></div></div>
+    <div class="content">
+      <div class="title-lg"><span>Settings</span></div>
+      <div class="group-h first">General</div>
+      <div class="grp">
+        <div class="fld"><span class="l">Day starts at</span><select data-set="dayStartHour">${hours}</select></div>
+        <div class="fld"><span class="l">Default list</span><select data-set="defaultCategoryId">${cats}</select></div>
+      </div>
+      <div class="note">Habits and Today roll over at this hour, so a 1 AM check-in still counts for the day before.</div>
+      <div class="group-h">Backup</div>
+      <div class="grp">
+        <button class="fld tap" data-act="export" style="width:100%;text-align:left"><span class="l action">Export backup…</span><span class="v">${S.settings.lastBackupAt ? esc(relDate(S.settings.lastBackupAt)) : 'never'}</span></button>
+        <button class="fld tap" data-act="import" style="width:100%;text-align:left"><span class="l action">Import backup…</span></button>
+      </div>
+      <div class="note">Export opens the share sheet: pick <b>Save to Files</b> → iCloud Drive. Import replaces everything with the file's contents. Your API key is never included.</div>
+      <div class="group-h">AI</div>
+      <div class="grp">
+        <div class="fld"><span class="l">API key</span><input type="password" id="apikey" placeholder="${S.apiKey ? '••••••••' + esc(S.apiKey.slice(-4)) : 'sk-ant-…'}" autocomplete="off" autocapitalize="off" spellcheck="false"><button class="action" data-act="key-save" style="padding:0 4px">Save</button></div>
+        ${S.apiKey ? `<button class="fld tap" data-act="key-clear" style="width:100%;text-align:left"><span class="l danger">Clear key</span></button>` : ''}
+        <div class="fld"><span class="l">Model</span><select data-set="modelPreset">${models}</select></div>
+        ${Game.MODEL_PRESETS.includes(S.settings.model) ? '' : `<div class="fld"><span class="l">Model ID</span><input type="text" id="modelcustom" value="${esc(S.settings.model)}" autocapitalize="off" autocomplete="off" spellcheck="false" style="text-align:right"></div>`}
+        <div class="fld"><span class="l">Claude checks skills<small class="srcnote">Double-checks the skill picked for new items</small></span><input type="checkbox" class="switch" data-set="aiSkillCheck" ${S.settings.aiSkillCheck !== false ? 'checked' : ''} aria-label="Claude checks skills"></div>
+        <button class="fld tap" data-act="recheck-skills" style="width:100%;text-align:left"><span class="l action">Re-check all items</span><span class="v" id="skillstatus">${esc(skillStatusText())}</span></button>
+        <button class="fld tap" data-act="copy-prompt" style="width:100%;text-align:left"><span class="l action">Copy Claude prompt</span></button>
+      </div>
+      <div class="note">The key is stored only on this device and sent only to api.anthropic.com. Skill checks send item titles (never notes) and your skill list. Set a monthly spend limit in the Anthropic Console. The prompt lets any Claude chat turn a card photo into items you can paste in via the camera button.</div>
+      <div class="group-h">About</div>
+      <div class="grp">
+        <div class="fld"><span class="l">Version</span><span class="v">${APP_VERSION}</span></div>
+        <div class="fld"><span class="l">Installed</span><span class="v">${IS_STANDALONE ? 'Home Screen' : 'Browser tab'}</span></div>
+        <div class="fld"><span class="l">Storage persisted</span><span class="v" id="persisted">…</span></div>
+        <div class="fld"><span class="l">Data</span><span class="v">${fmtNum(S.items.length)} items · ${fmtNum(S.completions.length)} completions</span></div>
+      </div>
+      <div class="grp"><button class="fld tap" data-act="erase" style="width:100%;text-align:left"><span class="l danger">Erase all data…</span></button></div>
+    </div></div>`;
+  try { const p = navigator.storage && navigator.storage.persisted ? await navigator.storage.persisted() : null; const el = $('#persisted'); if (el) el.textContent = p === null ? 'n/a' : p ? 'Yes' : 'No'; } catch (e) { /* ignore */ }
+}
+
+// ---------- sheets ----------
+const Sheet = {
+  stack: [], root: $('#sheet-root'),
+  push(entry) { this.stack.push(entry); history.pushState({ sheet: this.stack.length }, ''); this.rerender(); },
+  replace(entry) { this.stack[this.stack.length - 1] = entry; this.rerender(); },
+  pop() { if (!this.stack.length) return; history.back(); },
+  closeAll() { if (this.stack.length) history.go(-this.stack.length); },
+  top() { return this.stack[this.stack.length - 1] || null; },
+  rerender() {
+    const e = this.top();
+    if (!e) { this.root.innerHTML = ''; return; }
+    const left = e.left === null ? '' : `<button class="navbtn" data-act="sheet-left">${esc(e.left || (this.stack.length > 1 ? 'Back' : 'Cancel'))}</button>`;
+    const right = e.right === null ? '' : `<button class="navbtn strong right" data-act="sheet-right">${esc(e.right || 'Done')}</button>`;
+    this.root.innerHTML = `<div class="backdrop" data-act="sheet-backdrop"></div><div class="sheet ${e.tall ? 'tall' : ''}"><div class="sheet-head">${left}<div class="t">${esc(e.title || '')}</div>${right}</div><div class="sheet-body">${e.render()}</div></div>`;
+    if (e.mounted) e.mounted(this.root);
+  }
+};
+window.addEventListener('popstate', e => {
+  const want = (e.state && e.state.sheet) || 0;
+  while (Sheet.stack.length > want) { const top = Sheet.stack.pop(); if (top.onClose) top.onClose(); }
+  Sheet.rerender();
+  if (!Sheet.stack.length) render();
+});
+function flushSheetInputs() { const e = Sheet.top(); if (e && e.flush) e.flush(); }
+
+// item detail sheet
+function itemSheet(id) {
+  return {
+    kind: 'item', id, title: 'Details', right: 'Done', left: Sheet.stack.length ? 'Back' : null,
+    flush() { const it = itemById(id); if (!it) return; const t = $('#f-text'), n = $('#f-notes'); const patch = {}; if (t && t.value.trim() && t.value.trim() !== it.text) patch.text = t.value.trim(); if (n && n.value !== it.notes) patch.notes = n.value; if (Object.keys(patch).length) updateItem(id, patch); const sub = $('#f-newsub'); if (sub && sub.value.trim()) { addItem({ text: sub.value.trim(), parentId: id }); sub.value = ''; } },
+    render() {
+      const it = itemById(id); if (!it) return '<div class="empty">Item no longer exists</div>';
+      const tk = todayKey(), ib = Game.byId(S.items);
+      const parent = it.parentId ? itemById(it.parentId) : null;
+      const kids = childrenOf(it.id);
+      const tiers = [1, 2, 3, 4, 5].map(t => `<button class="${it.tier === t ? 'on' : ''}" data-act="f-tier" data-v="${t}">${t}<small>${Game.xpForTier(t)} XP</small></button>`).join('');
+      const cats = sortedCats().map(c => `<option value="${c.id}" ${c.id === it.categoryId ? 'selected' : ''}>${esc(c.icon)} ${esc(c.name)}</option>`).join('');
+      let typeBlock = '';
+      if (!parent) {
+        typeBlock = `<div class="grp"><div class="fldc"><div class="seg"><button class="${it.type === 'task' ? 'on' : ''}" data-act="f-type" data-v="task">Task</button><button class="${it.type === 'habit' ? 'on' : ''}" data-act="f-type" data-v="habit">Habit</button></div></div>`;
+        if (it.type === 'task') {
+          typeBlock += it.due
+            ? `<div class="fld"><span class="l">Due</span><input type="date" id="f-due" value="${esc(it.due)}"><button class="action" data-act="f-due-clear">Clear</button></div>`
+            : `<div class="fld"><span class="l">Due</span><button class="action" data-act="f-due-today">Add date</button></div>`;
+        } else {
+          const kind = it.repeat.kind;
+          const days = Game.WEEKDAYS.map((d, i) => `<button class="${it.repeat.days.includes(i) ? 'on' : ''}" data-act="f-day" data-v="${i}">${d[0].toUpperCase() + d.slice(1)}</button>`).join('');
+          typeBlock += `<div class="fldc"><div style="display:flex;align-items:center"><span class="l" style="flex:1">Repeat</span></div><div class="seg"><button class="${kind === 'daily' ? 'on' : ''}" data-act="f-repeat" data-v="daily">Daily</button><button class="${kind === 'weekly' ? 'on' : ''}" data-act="f-repeat" data-v="weekly">Weekly</button><button class="${kind === 'custom' ? 'on' : ''}" data-act="f-repeat" data-v="custom">Custom</button></div>${kind !== 'daily' ? `<div class="chips">${days}</div>` : ''}</div>`;
+          if (!kids.length) typeBlock += `<div class="fld"><span class="l">Times per day</span><span class="stepper"><button data-act="f-tpd" data-v="-1">−</button><span>${it.timesPerDay}</span><button data-act="f-tpd" data-v="1">+</button></span></div>`;
+        }
+        typeBlock += `<div class="fld"><span class="l">List</span><select id="f-cat">${cats}</select></div></div>`;
+      } else {
+        typeBlock = `<div class="grp"><div class="fld"><span class="l">Sub-task of</span><span class="v">${esc(parent.text)}</span></div></div>`;
+      }
+      let subs = '';
+      if (!parent && it.timesPerDay <= 1) {
+        subs = `<div class="group-h">Sub-tasks</div><div class="grp">${kids.map(k => { const st = Game.doneState(k, ib, IDX, tk); const ksk = skillById(k.skillId); return `<div class="subrow ${st.done ? 'done' : ''}"><button class="checkwrap" data-act="toggle-sheet" data-id="${k.id}"><span class="check ${st.done ? 'done' : ''} ${justDone.has(k.id) ? 'pop' : ''}" style="--c:${catColor(catById(it.categoryId))}"></span></button><button class="body" data-act="open-sub" data-id="${k.id}" style="text-align:left"><div class="txt">${esc(k.text)}</div></button><span class="chip">${ksk ? esc(ksk.icon) + ' ' : ''}${Game.xpForTier(k.tier)} XP</span>${ICONS.chevR.replace('class="icon"', 'class="icon chev"')}</div>`; }).join('')}<div class="subrow"><span class="checkwrap"><span class="check" style="border-style:dashed"></span></span><input id="f-newsub" placeholder="Add sub-task" enterkeyhint="done" autocapitalize="sentences"></div></div>`;
+      }
+      const src = it.skillSource === 'ai' ? '✨ Picked by Claude' : it.skillSource === 'auto' ? (SkillAI.enabled() && !it.aiCheckedAt ? 'Auto-picked · Claude will double-check' : 'Auto-picked') : it.skillSource === 'user' ? 'Your pick' : 'Not linked yet';
+      const skOpts = `<option value="" ${!it.skillId ? 'selected' : ''}>None</option>` + sortedSkills().map(s => `<option value="${s.id}" ${s.id === it.skillId ? 'selected' : ''}>${esc(s.icon)} ${esc(s.name)}</option>`).join('');
+      const boosts = `<div class="grp"><div class="fld"><span class="l">Boosts<small class="srcnote">${esc(src)}</small></span><select id="f-skill" aria-label="Skill this boosts">${skOpts}</select></div></div>`;
+      let stats = '';
+      if (it.type === 'habit' && !parent) {
+        const sk = Game.streak(it, IDX, tk); const st = Game.doneState(it, ib, IDX, tk); const total = Game.completionsFor(IDX, it.id).length;
+        stats = `<div class="grp"><div class="stats"><div><div class="n">${st.count}${st.target > 1 ? '/' + st.target : ''}</div><div class="l">Today</div></div><div><div class="n">🔥 ${sk.current}</div><div class="l">Streak</div></div><div><div class="n">${fmtNum(total)}</div><div class="l">Total</div></div></div><div class="note" style="margin-top:0;padding-top:0">Best streak ${sk.best}</div></div>`;
+      }
+      return `<div class="grp"><div class="fld"><input type="text" id="f-text" class="big" value="${esc(it.text)}" placeholder="Title" autocapitalize="sentences"></div><div class="fld"><textarea id="f-notes" rows="2" placeholder="Notes">${esc(it.notes)}</textarea></div></div>
+        ${typeBlock}
+        ${boosts}
+        <div class="grp"><div class="fldc"><div style="display:flex;align-items:center"><span class="l" style="flex:1">Difficulty</span><span class="v" style="font-size:14px">${esc(Game.TIER_RUBRIC[it.tier])}</span></div><div class="seg tiers">${tiers}</div></div></div>
+        ${subs}${stats}
+        <button class="btn danger" data-act="f-delete">Delete ${parent ? 'Sub-task' : it.type === 'habit' ? 'Habit' : 'Task'}</button>`;
+    },
+    mounted(root) {
+      const sub = root.querySelector('#f-newsub');
+      if (sub) sub.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); const v = sub.value.trim(); if (!v) return; addItem({ text: v, parentId: id }); Sheet.rerender(); const n = root.querySelector('#f-newsub'); if (n) n.focus(); } });
+      const due = root.querySelector('#f-due'); if (due) due.addEventListener('change', () => { updateItem(id, { due: due.value || null }); Sheet.rerender(); });
+      const cat = root.querySelector('#f-cat'); if (cat) cat.addEventListener('change', () => { updateItem(id, { categoryId: cat.value }); Sheet.rerender(); });
+      const skSel = root.querySelector('#f-skill'); if (skSel) skSel.addEventListener('change', () => { flushSheetInputs(); setItemSkill(id, skSel.value || null); Sheet.rerender(); refreshListBody(); });
+      const t = root.querySelector('#f-text'); if (t) t.addEventListener('change', () => { if (t.value.trim()) updateItem(id, { text: t.value.trim() }); });
+      const n = root.querySelector('#f-notes'); if (n) n.addEventListener('change', () => updateItem(id, { notes: n.value }));
+    },
+    onClose() { }
+  };
+}
+function categorySheet(id) {
+  const existing = id ? catById(id) : null;
+  const draft = existing ? { name: existing.name, color: existing.color, icon: existing.icon } : { name: '', color: 'blue', icon: '📋' };
+  return {
+    kind: 'category', id, draft, title: existing ? 'Edit List' : 'New List', right: 'Done',
+    render() {
+      const sw = Game.COLORS.map(c => `<button class="${draft.color === c ? 'on' : ''}" data-act="c-color" data-v="${c}" style="background:var(--c-${c})" aria-label="${c}"></button>`).join('');
+      const em = EMOJI_PRESETS.map(e => `<button class="${draft.icon === e ? 'on' : ''}" data-act="c-icon" data-v="${esc(e)}">${e}</button>`).join('');
+      return `<div class="grp"><div class="catpreview"><div class="big" style="background:var(--c-${draft.color})">${esc(draft.icon)}</div><input type="text" id="c-name" value="${esc(draft.name)}" placeholder="List Name" autocapitalize="words"></div></div>
+        <div class="grp"><div class="swatches">${sw}</div></div>
+        <div class="grp"><div class="emojis">${em}</div><div class="fld"><span class="l">Custom emoji</span><input type="text" id="c-emoji" placeholder="🙂" maxlength="4" style="text-align:right"></div></div>
+        ${existing ? `<button class="btn danger" data-act="c-delete">Delete List</button>` : ''}`;
+    },
+    mounted(root) {
+      const nm = root.querySelector('#c-name'); nm.addEventListener('input', () => { draft.name = nm.value; });
+      const ce = root.querySelector('#c-emoji'); ce.addEventListener('input', () => { const v = ce.value.trim(); if (v) { draft.icon = [...v].slice(-2).join(''); root.querySelector('.catpreview .big').textContent = draft.icon; root.querySelectorAll('.emojis button').forEach(b => b.classList.remove('on')); } });
+      if (!existing) setTimeout(() => nm.focus(), 50);
+    },
+    done() {
+      const name = draft.name.trim();
+      if (!name) { toast('Give the list a name'); return false; }
+      if (existing) updateCategory(existing.id, { name, color: draft.color, icon: draft.icon });
+      else addCategory({ name, color: draft.color, icon: draft.icon });
+      return true;
+    }
+  };
+}
+function skillSheet(id) {
+  const existing = id ? skillById(id) : null;
+  const draft = existing ? { name: existing.name, color: existing.color, icon: existing.icon, hint: existing.hint || '' } : { name: '', color: 'purple', icon: '⭐', hint: '' };
+  return {
+    kind: 'skill', id, draft, title: existing ? 'Edit Skill' : 'New Skill', right: 'Done',
+    render() {
+      const sw = Game.COLORS.map(c => `<button class="${draft.color === c ? 'on' : ''}" data-act="sk-color" data-v="${c}" style="background:var(--c-${c})" aria-label="${c}"></button>`).join('');
+      const em = SKILL_EMOJIS.map(e => `<button class="${draft.icon === e ? 'on' : ''}" data-act="sk-icon" data-v="${esc(e)}">${e}</button>`).join('');
+      const count = existing ? S.items.filter(i => i.skillId === existing.id).length : 0;
+      const xp = existing ? (TOTALS.bySkill[existing.id] || 0) : 0;
+      return `<div class="grp"><div class="catpreview"><div class="big" style="background:var(--c-${draft.color})">${esc(draft.icon)}</div><input type="text" id="sk-name" value="${esc(draft.name)}" placeholder="Skill Name" autocapitalize="words"></div></div>
+        <div class="group-h first">What counts</div>
+        <div class="grp"><div class="fld"><textarea id="sk-hint" rows="3" placeholder="e.g. guitar, drawing, writing songs">${esc(draft.hint)}</textarea></div></div>
+        <div class="note">The keyword guess and Claude both read this to decide which items boost this skill.</div>
+        <div class="grp"><div class="swatches">${sw}</div></div>
+        <div class="grp"><div class="emojis">${em}</div><div class="fld"><span class="l">Custom emoji</span><input type="text" id="sk-emoji" placeholder="🙂" maxlength="4" style="text-align:right"></div></div>
+        ${existing ? `<div class="note" style="margin-top:-8px">${count} item${count === 1 ? '' : 's'} · ${fmtNum(xp)} XP</div><button class="btn danger" data-act="sk-delete">Delete Skill</button>` : ''}`;
+    },
+    mounted(root) {
+      const nm = root.querySelector('#sk-name'); nm.addEventListener('input', () => { draft.name = nm.value; });
+      const hint = root.querySelector('#sk-hint'); hint.addEventListener('input', () => { draft.hint = hint.value; });
+      const ce = root.querySelector('#sk-emoji'); ce.addEventListener('input', () => { const v = ce.value.trim(); if (v) { draft.icon = [...v].slice(-2).join(''); root.querySelector('.catpreview .big').textContent = draft.icon; root.querySelectorAll('.emojis button').forEach(b => b.classList.remove('on')); } });
+      if (!existing) setTimeout(() => nm.focus(), 50);
+    },
+    done() {
+      const name = draft.name.trim();
+      if (!name) { toast('Give the skill a name'); return false; }
+      if (existing) updateSkill(existing.id, { name, color: draft.color, icon: draft.icon, hint: draft.hint });
+      else addSkill({ name, color: draft.color, icon: draft.icon, hint: draft.hint });
+      return true;
+    }
+  };
+}
+function menuSheet(title, entries) {
+  return {
+    kind: 'menu', title, left: 'Cancel', right: null,
+    render() { return `<div class="menu"><div class="grp">${entries.map((e, i) => `<button class="${e.danger ? 'danger' : ''}" data-act="menu-pick" data-i="${i}">${e.icon || ''}<span>${esc(e.label)}</span></button>`).join('')}</div></div>`; },
+    entries
+  };
+}
+function achievementSheet(id) {
+  const existing = id ? S.achievements.find(a => a.id === id) : null;
+  const d = existing ? JSON.parse(JSON.stringify(existing)) : { id: Game.newId(), name: '', icon: '🏆', kind: 'count', metric: 'completions', scope: { type: 'all' }, threshold: 10, autoTier: true, seriesId: Game.newId(), tier: 1, unlockedAt: null, createdAt: nowIso() };
+  const ctx = Game.achievementContext(gameState(), new Date());
+  return {
+    kind: 'achievement', id, draft: d, title: existing ? Game.achievementName(existing) : 'New Achievement', right: existing && existing.unlockedAt ? 'Done' : 'Save',
+    render() {
+      const habits = S.items.filter(i => i.type === 'habit' && !i.parentId);
+      const cur = d.scope.id ? `${d.scope.type}:${d.scope.id}` : d.scope.type;
+      const opt = (v, label) => `<option value="${esc(v)}" ${cur === v ? 'selected' : ''}>${esc(label)}</option>`;
+      const skillGroup = `<optgroup label="Skills">${sortedSkills().map(s => opt('skill:' + s.id, `${s.icon} ${s.name}`)).join('')}</optgroup>`;
+      const scopeOpts = (mode) => {
+        if (mode === 'level') return opt('all', 'Overall') + opt('anySkill', 'Highest skill') + opt('everySkill', 'Every skill') + skillGroup;
+        let o = opt('all', 'Everything') + skillGroup;
+        o += `<optgroup label="Lists">${sortedCats().map(c => opt('category:' + c.id, c.name)).join('')}</optgroup>`;
+        const items = mode === 'streak' ? habits : S.items.filter(i => !i.parentId);
+        if (items.length) o += `<optgroup label="${mode === 'streak' ? 'Habits' : 'Items'}">${items.map(i => opt('item:' + i.id, i.text)).join('')}</optgroup>`;
+        return o;
+      };
+      const p = existing ? Game.achievementProgress(existing, ctx) : null;
+      const kinds = [['count', 'Count'], ['streak', 'Streak'], ['level', 'Level'], ['manual', 'Manual']].map(([k, l]) => `<button class="${d.kind === k ? 'on' : ''}" data-act="a-kind" data-v="${k}">${l}</button>`).join('');
+      let rules = '';
+      if (d.kind === 'count') rules = `<div class="fld"><span class="l">Count</span><select id="a-metric">${[['completions', 'Any completion'], ['tasks', 'Tasks'], ['habits', 'Habit check-ins'], ['subtasks', 'Sub-tasks']].map(([v, l]) => `<option value="${v}" ${d.metric === v ? 'selected' : ''}>${l}</option>`).join('')}</select></div><div class="fld"><span class="l">In</span><select id="a-scope">${scopeOpts('count')}</select></div>`;
+      else if (d.kind === 'streak') rules = `<div class="fld"><span class="l">Habit</span><select id="a-scope">${scopeOpts('streak')}</select></div>`;
+      else if (d.kind === 'level') rules = `<div class="fld"><span class="l">Level of</span><select id="a-scope">${scopeOpts('level')}</select></div>`;
+      const thresholdRow = d.kind === 'manual' ? '' : `<div class="fld"><span class="l">${d.kind === 'level' ? 'Reach level' : d.kind === 'streak' ? 'Streak of' : 'Reach'}</span><input type="number" id="a-threshold" inputmode="numeric" min="1" value="${d.threshold}" style="text-align:right"></div>`;
+      const auto = (d.kind === 'count' || d.kind === 'streak') ? `<div class="fld"><span class="l">Auto next tier<small class="srcnote">10 · 25 · 50 · 100 · 250 · 500 · 1000 · ×2</small></span><input type="checkbox" class="switch" id="a-auto" ${d.autoTier ? 'checked' : ''}></div>` : '';
+      return `${existing ? `<div class="grp"><div class="stats"><div><div class="n">${esc(existing.icon)}</div><div class="l">${existing.unlockedAt ? 'Unlocked' : 'Locked'}</div></div><div><div class="n">${existing.kind === 'manual' ? (existing.unlockedAt ? '✓' : '–') : fmtNum(p.value)}</div><div class="l">Progress</div></div><div><div class="n">${existing.kind === 'manual' ? '' : fmtNum(p.threshold)}</div><div class="l">${existing.kind === 'manual' ? '' : 'Goal'}</div></div></div></div>` : ''}
+        ${existing && existing.unlockedAt ? '' : `<div class="grp"><div class="fld"><input type="text" id="a-name" class="big" value="${esc(d.name)}" placeholder="Name · use {n} for the number" autocapitalize="sentences"></div><div class="fld"><span class="l">Icon</span><input type="text" id="a-icon" value="${esc(d.icon)}" maxlength="4" style="text-align:right"></div></div>
+        <div class="grp"><div class="fldc"><div class="seg">${kinds}</div></div>${rules}${thresholdRow}${auto}</div>`}
+        ${existing && existing.kind === 'manual' && !existing.unlockedAt ? `<button class="btn primary" data-act="a-unlock">Mark done</button>` : ''}
+        ${existing ? `<button class="btn danger" data-act="a-delete">Delete Achievement</button>` : ''}`;
+    },
+    mounted(root) {
+      const bind = (sel, fn) => { const el = root.querySelector(sel); if (el) el.addEventListener('change', () => fn(el)); };
+      bind('#a-name', el => { d.name = el.value; });
+      bind('#a-icon', el => { d.icon = el.value.trim() || '🏆'; });
+      bind('#a-metric', el => { d.metric = el.value; });
+      bind('#a-scope', el => { const v = el.value; const i = v.indexOf(':'); d.scope = i < 0 ? { type: v } : { type: v.slice(0, i), id: v.slice(i + 1) }; });
+      bind('#a-threshold', el => { d.threshold = Math.max(1, Math.floor(Number(el.value) || 1)); });
+      bind('#a-auto', el => { d.autoTier = el.checked; });
+    },
+    flush() { const n = $('#a-name'); if (n) d.name = n.value; const ic = $('#a-icon'); if (ic) d.icon = ic.value.trim() || '🏆'; const th = $('#a-threshold'); if (th) d.threshold = Math.max(1, Math.floor(Number(th.value) || 1)); },
+    done() {
+      if (existing && existing.unlockedAt) return true;
+      if (!d.name.trim()) { toast('Give it a name'); return false; }
+      if (d.kind !== 'count') delete d.metric;
+      if (d.kind === 'level' && !['all', 'skill', 'anySkill', 'everySkill'].includes(d.scope.type)) d.scope = { type: 'all' };
+      if (d.kind !== 'level' && (d.scope.type === 'anySkill' || d.scope.type === 'everySkill')) d.scope = { type: 'all' };
+      if (d.kind === 'manual') { d.threshold = 1; d.autoTier = false; }
+      if (d.kind === 'level') d.autoTier = false;
+      saveAchievement(d);
+      runAchievementChecks();
+      return true;
+    }
+  };
+}
+
+// ---------- capture (photo / paste) ----------
+const API_URL = 'https://api.anthropic.com/v1/messages';
+let captureFrom = null, captureAbort = null;
+function activeItemsForCapture() { const tk = todayKey(), ib = Game.byId(S.items); return S.items.filter(it => !it.parentId && (it.type === 'habit' || !Game.isDone(it, ib, IDX, tk))); }
+function openCaptureMenu(fromCategoryId) {
+  captureFrom = fromCategoryId || null;
+  Sheet.push(menuSheet('Add from a note card', [
+    { label: 'Take Photo', icon: ICONS.camera, run: () => startPhotoCapture() },
+    { label: 'Paste from Claude', icon: ICONS.paste, replace: true, run: () => startPasteCapture() }
+  ]));
+}
+function startPhotoCapture() {
+  if (!S.apiKey) { toast('Add your API key in Settings first', { action: 'Settings', onAction: () => go('#/settings'), ms: 5000 }); return; }
+  $('#file-photo').click(); // must stay inside the user gesture
+}
+function loadImage(file) {
+  return new Promise((res, rej) => {
+    const url = URL.createObjectURL(file);
+    const img = new Image();
+    img.onload = () => { URL.revokeObjectURL(url); res(img); };
+    img.onerror = () => { URL.revokeObjectURL(url); rej(new Error('Could not read that image')); };
+    img.src = url;
+  });
+}
+async function prepareImage(file, maxEdge = 1568) {
+  const img = await loadImage(file);
+  const w0 = img.naturalWidth || img.width, h0 = img.naturalHeight || img.height;
+  const scale = Math.min(1, maxEdge / Math.max(w0, h0));
+  const w = Math.max(1, Math.round(w0 * scale)), h = Math.max(1, Math.round(h0 * scale));
+  const canvas = document.createElement('canvas'); canvas.width = w; canvas.height = h;
+  canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+  const blob = await new Promise((res, rej) => canvas.toBlob(b => b ? res(b) : rej(new Error('Could not compress the image')), 'image/jpeg', 0.85));
+  const base64 = await new Promise((res, rej) => { const r = new FileReader(); r.onload = () => res(String(r.result).split(',')[1]); r.onerror = () => rej(r.error); r.readAsDataURL(blob); });
+  return { base64, mediaType: 'image/jpeg', width: w, height: h, bytes: blob.size };
+}
+async function handlePhoto(file) {
+  if (!Sheet.top() || Sheet.top().kind !== 'progress') Sheet.push(progressSheet('Reading your card…'));
+  captureAbort = new AbortController();
+  try {
+    const img = await prepareImage(file);
+    const active = activeItemsForCapture();
+    const body = Game.buildCaptureRequest(S.settings.model || Game.DEFAULT_MODEL, img.base64, img.mediaType, sortedCats(), sortedSkills(), active, captureFrom);
+    const resp = await fetch(API_URL, {
+      method: 'POST', signal: captureAbort.signal,
+      headers: { 'content-type': 'application/json', 'x-api-key': S.apiKey, 'anthropic-version': '2023-06-01', 'anthropic-dangerous-direct-browser-access': 'true' },
+      body: JSON.stringify(body)
+    });
+    if (!resp.ok) {
+      let msg = `API error ${resp.status}`;
+      try { const j = await resp.json(); if (j.error && j.error.message) msg = j.error.message; } catch (e) { /* ignore */ }
+      if (resp.status === 401) msg = 'Key rejected — check it in Settings.';
+      throw new Error(msg);
+    }
+    const json = await resp.json();
+    const input = Game.parseCaptureResponse(json);
+    if (!input) throw new Error('The model returned no items.');
+    const parsed = Game.normalizeCapture(input, sortedCats(), sortedSkills(), captureFrom || defaultCategoryId(), active);
+    if (!parsed.items.length && !parsed.unreadable.length) throw new Error('No to-do lines were found on the card.');
+    Sheet.replace(reviewSheet(parsed, 'photo'));
+  } catch (e) {
+    if (e && e.name === 'AbortError') return;
+    Sheet.replace(errorSheet(e && e.message || String(e), () => { Sheet.replace(progressSheet('Reading your card…')); handlePhoto(file); }));
+  }
+}
+function startPasteCapture() {
+  const p = (navigator.clipboard && navigator.clipboard.readText) ? navigator.clipboard.readText() : Promise.reject(new Error('no clipboard'));
+  p.then(text => {
+    const json = Game.extractJson(text);
+    if (json && (Array.isArray(json.items) || Array.isArray(json.unreadable))) reviewFromJson(json, true);
+    else Sheet.replace(pasteSheet(text && text.trim().length > 0 && text.trim().length < 400 ? '' : ''));
+  }).catch(() => Sheet.replace(pasteSheet('')));
+}
+function reviewFromJson(json, replace) {
+  const active = activeItemsForCapture();
+  const parsed = Game.normalizeCapture(json, sortedCats(), sortedSkills(), captureFrom || defaultCategoryId(), active);
+  if (!parsed.items.length && !parsed.unreadable.length) { toast('No items found in that JSON'); return false; }
+  const sheet = reviewSheet(parsed, 'paste');
+  if (replace) Sheet.replace(sheet); else Sheet.push(sheet);
+  return true;
+}
+function pasteSheet(initial) {
+  return {
+    kind: 'paste', title: 'Paste from Claude', left: 'Cancel', right: 'Parse',
+    render() { return `<div class="note" style="margin-top:12px">Paste the JSON block Claude produced. Need the prompt? Settings → AI capture → Copy Claude prompt.</div><div class="grp"><div class="fld"><textarea id="paste-text" rows="8" placeholder='{"items":[…]}' autocapitalize="off" autocorrect="off" spellcheck="false">${esc(initial)}</textarea></div></div>`; },
+    mounted(root) { const t = root.querySelector('#paste-text'); if (t) setTimeout(() => t.focus(), 50); },
+    done() {
+      const t = $('#paste-text'); const json = Game.extractJson(t ? t.value : '');
+      if (!json) { toast('That doesn\'t look like the JSON block'); return false; }
+      return reviewFromJson(json, true) ? 'replaced' : false;
+    }
+  };
+}
+function progressSheet(text) {
+  return { kind: 'progress', title: '', left: 'Cancel', right: null, render() { return `<div class="center" style="padding:36px 16px"><div class="spinner"></div><div style="margin-top:14px">${esc(text)}</div></div>`; }, onClose() { if (captureAbort) captureAbort.abort(); } };
+}
+function errorSheet(message, retry) {
+  return { kind: 'error', title: 'Couldn\'t read the card', left: 'Cancel', right: null, retry, render() { return `<div class="center" style="padding-top:20px">${esc(message)}</div><button class="btn primary" data-act="capture-retry" style="margin:8px 0 16px">Try again</button>`; } };
+}
+function reviewSheet(parsed, source) {
+  const tk = todayKey();
+  const d = {
+    due: tk, source,
+    items: parsed.items.map(x => Object.assign({ checked: !x.duplicateOfId, dupText: x.duplicateOfId ? (itemById(x.duplicateOfId) || {}).text : null }, x)),
+    unreadable: parsed.unreadable.map(u => { const g = Game.inferSkill(u.bestGuess, S.skills); return { text: u.bestGuess, checked: false, type: 'task', categoryId: captureFrom || defaultCategoryId(), skillId: g ? g.skillId : null, skillSource: g ? 'auto' : null, tier: Game.DEFAULT_TIER, timesPerDay: 1, unreadable: true }; })
+  };
+  const all = () => d.items.concat(d.unreadable);
+  return {
+    kind: 'review', draft: d, title: `Found ${parsed.items.length} item${parsed.items.length === 1 ? '' : 's'}`, left: 'Cancel', right: null, tall: true,
+    render() {
+      const n = all().filter(x => x.checked && x.text.trim()).length;
+      const chips = [['today', 'Today', tk], ['tomorrow', 'Tomorrow', Game.addDays(tk, 1)]];
+      for (let i = 2; i <= 6; i++) { const k = Game.addDays(tk, i); chips.push([k, Game.WEEKDAYS[Game.weekdayOf(k)].replace(/^\w/, c => c.toUpperCase()), k]); }
+      const chipHtml = chips.map(([id, label, key]) => `<button class="${d.due === key ? 'on' : ''}" data-act="rv-due" data-v="${key}">${label}</button>`).join('') + `<button class="${d.due && !chips.some(c => c[2] === d.due) ? 'on' : ''}" data-act="rv-due-pick">${d.due && !chips.some(c => c[2] === d.due) ? esc(dueLabel(d.due, tk)) : 'Pick…'}</button><button class="${d.due === null ? 'on' : ''}" data-act="rv-due" data-v="">None</button>`;
+      const cats = (sel) => sortedCats().map(c => `<option value="${c.id}" ${c.id === sel ? 'selected' : ''}>${esc(c.icon)} ${esc(c.name)}</option>`).join('');
+      const skills = (sel) => `<option value="" ${!sel ? 'selected' : ''}>No skill</option>` + sortedSkills().map(s => `<option value="${s.id}" ${s.id === sel ? 'selected' : ''}>${esc(s.icon)} ${esc(s.name)}</option>`).join('');
+      const row = (x, i, list) => `<div class="rv ${x.checked ? '' : 'off'}"><label class="rv-check"><input type="checkbox" data-rv="${list}:${i}:checked" ${x.checked ? 'checked' : ''}><span class="check"></span></label><div class="rv-body"><input type="text" data-rv="${list}:${i}:text" value="${esc(x.text)}" autocapitalize="sentences">${x.dupText ? `<div class="rv-dup">Looks like: ${esc(x.dupText)}</div>` : ''}<div class="rv-ctl"><button class="rv-type" data-act="rv-type" data-list="${list}" data-i="${i}">${x.type === 'habit' ? 'Habit' : 'Task'}</button><select data-rv="${list}:${i}:skillId" aria-label="Skill">${skills(x.skillId)}</select><select data-rv="${list}:${i}:categoryId" aria-label="List">${cats(x.categoryId)}</select><select data-rv="${list}:${i}:tier">${[1, 2, 3, 4, 5].map(t => `<option value="${t}" ${x.tier === t ? 'selected' : ''}>Tier ${t} · ${Game.xpForTier(t)} XP</option>`).join('')}</select>${x.type === 'habit' ? `<input type="number" inputmode="numeric" min="1" max="99" data-rv="${list}:${i}:timesPerDay" value="${x.timesPerDay}" title="times per day" style="width:52px">` : ''}</div></div></div>`;
+      return `<div class="group-h first">Due date for tasks</div><div class="chips" style="margin:0 0 16px">${chipHtml}</div><input type="date" id="rv-date" style="position:absolute;opacity:0;width:1px;height:1px;pointer-events:none">
+        <div class="grp">${d.items.length ? d.items.map((x, i) => row(x, i, 'items')).join('') : '<div class="empty">Nothing readable found</div>'}</div>
+        ${d.unreadable.length ? `<div class="group-h">Couldn't read — best guesses</div><div class="grp">${d.unreadable.map((x, i) => row(x, i, 'unreadable')).join('')}</div>` : ''}
+        <button class="btn primary" data-act="rv-add" ${n ? '' : 'disabled'} style="position:sticky;bottom:0">Add ${n} item${n === 1 ? '' : 's'}</button>`;
+    },
+    mounted(root) {
+      root.querySelectorAll('[data-rv]').forEach(el => {
+        const [list, i, field] = el.dataset.rv.split(':');
+        const target = d[list][+i];
+        const ev = el.type === 'text' || el.type === 'number' ? 'input' : 'change';
+        el.addEventListener(ev, () => {
+          if (field === 'checked') { target.checked = el.checked; el.closest('.rv').classList.toggle('off', !el.checked); updateAddButton(); }
+          else if (field === 'tier') target.tier = +el.value;
+          else if (field === 'timesPerDay') target.timesPerDay = Math.min(99, Math.max(1, Math.floor(Number(el.value) || 1)));
+          else if (field === 'text') { target.text = el.value; updateAddButton(); }
+          else if (field === 'skillId') { target.skillId = el.value || null; target.skillSource = 'user'; }
+          else target[field] = el.value;
+        });
+      });
+      const pick = root.querySelector('#rv-date'); if (pick) pick.addEventListener('change', () => { if (pick.value) { d.due = pick.value; Sheet.rerender(); } });
+      function updateAddButton() { const b = root.querySelector('[data-act="rv-add"]'); if (!b) return; const n = all().filter(x => x.checked && x.text.trim()).length; b.disabled = !n; b.textContent = `Add ${n} item${n === 1 ? '' : 's'}`; }
+    },
+    add() {
+      const chosen = all().filter(x => x.checked && x.text.trim());
+      for (const x of chosen) addItem({ text: x.text.trim(), type: x.type, categoryId: x.categoryId, skillId: x.skillId, skillSource: x.skillSource, tier: x.tier, timesPerDay: x.type === 'habit' ? x.timesPerDay : 1, due: x.type === 'task' ? d.due : null, repeat: x.type === 'habit' ? { kind: 'daily' } : null });
+      return chosen.length;
+    }
+  };
+}
+
+// ---------- backup ----------
+async function exportBackup() {
+  const data = Game.buildBackup(gameState(), APP_VERSION, nowIso());
+  const json = JSON.stringify(data);
+  const name = `habit-tracker-backup-${todayKey()}.json`;
+  let ok = false;
+  try {
+    const file = new File([json], name, { type: 'application/json' });
+    if (navigator.canShare && navigator.canShare({ files: [file] }) && navigator.share) {
+      try { await navigator.share({ files: [file], title: 'Habit Tracker backup' }); ok = true; }
+      catch (e) { if (e && e.name === 'AbortError') return; }
+    }
+  } catch (e) { /* fall through to download */ }
+  if (!ok) {
+    const url = URL.createObjectURL(new Blob([json], { type: 'application/json' }));
+    const a = document.createElement('a'); a.href = url; a.download = name; document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 10000);
+    ok = true;
+  }
+  if (ok) { saveSettings({ lastBackupAt: nowIso() }); toast('Backup saved'); render(); }
+}
+async function importBackupFile(file) {
+  let obj;
+  try { obj = JSON.parse(await file.text()); } catch (e) { toast('That file is not valid JSON'); return; }
+  const v = Game.validateBackup(obj, todayKey(), nowIso());
+  if (!v.ok) { toast(v.error, { ms: 4000 }); return; }
+  const d = v.data;
+  if (!confirm(`Replace all current data with this backup?\n\n${d.categories.length} lists · ${d.skills.length} skills · ${d.items.length} items · ${d.completions.length} completions`)) return;
+  await replaceAllData(d);
+  toast(v.fromVersion < Game.SCHEMA_VERSION ? 'Backup restored and sorted into skills' : 'Backup restored');
+  runAchievementChecks();
+  SkillAI.schedule(1500);
+  go('#/');
+  render();
+}
+async function replaceAllData(d) {
+  d.settings.onboarded = true;
+  S.categories = d.categories; S.skills = d.skills; S.items = d.items; S.completions = d.completions; S.achievements = d.achievements; S.settings = d.settings;
+  recompute();
+  const ops = ['categories', 'skills', 'items', 'completions', 'achievements', 'settings'].map(s => ({ store: s, clear: true }));
+  for (const c of S.categories) ops.push({ store: 'categories', put: c });
+  for (const s of S.skills) ops.push({ store: 'skills', put: s });
+  for (const i of S.items) ops.push({ store: 'items', put: i });
+  for (const c of S.completions) ops.push({ store: 'completions', put: c });
+  for (const a of S.achievements) ops.push({ store: 'achievements', put: a });
+  ops.push({ store: 'settings', put: S.settings });
+  await persist(ops);
+}
+async function eraseAll() {
+  if (!confirm('Erase all lists, items, history and settings on this device? Export a backup first if you want to keep anything.')) return;
+  if (!confirm('This cannot be undone. Erase everything?')) return;
+  await persist(DB.STORES.map(s => ({ store: s, clear: true })));
+  location.hash = '';
+  location.reload();
+}
+async function saveApiKey(v) {
+  v = (v || '').trim();
+  if (!v) return;
+  S.apiKey = v;
+  await persist([{ store: 'secrets', put: { id: 'anthropicKey', value: v } }]);
+  toast('Key saved on this device');
+  render();
+  SkillAI.schedule(800);
+}
+async function clearApiKey() { S.apiKey = null; await persist([{ store: 'secrets', del: 'anthropicKey' }]); toast('Key removed'); render(); }
+async function copyPastePrompt() {
+  const text = Game.buildPastePrompt(sortedCats(), sortedSkills());
+  try { await navigator.clipboard.writeText(text); toast('Prompt copied — paste it into a Claude chat or project'); }
+  catch (e) { prompt('Copy this prompt:', text); }
+}
+
+// ---------- Claude skill check (background) ----------
+// Typed items get an instant keyword guess; this re-checks them with Claude in small batches.
+// Your own picks (skillSource 'user') are never touched. Failures are silent and retried later.
+const SkillAI = {
+  timer: null, running: false, lastError: null, lastRunAt: null,
+  enabled() { return !!(S.apiKey && S.settings && S.settings.aiSkillCheck !== false && S.skills.length); },
+  pending() { return S.items.filter(i => i.skillSource !== 'user' && !i.aiCheckedAt && String(i.text || '').trim()); },
+  schedule(delay) {
+    if (!this.enabled()) return;
+    clearTimeout(this.timer);
+    this.timer = setTimeout(() => this.run().catch(() => {}), delay === undefined ? 2500 : delay);
+  },
+  async run() {
+    if (this.running || !this.enabled() || navigator.onLine === false) return null;
+    const batch = this.pending().slice(0, 40);
+    if (!batch.length) return null;
+    this.running = true;
+    const sentText = new Map(batch.map(i => [i.id, i.text]));
+    try {
+      const body = Game.buildSkillRequest(S.settings.model || Game.DEFAULT_MODEL, sortedSkills(), batch, Game.byId(S.items));
+      const resp = await fetch(API_URL, {
+        method: 'POST',
+        headers: { 'content-type': 'application/json', 'x-api-key': S.apiKey, 'anthropic-version': '2023-06-01', 'anthropic-dangerous-direct-browser-access': 'true' },
+        body: JSON.stringify(body)
+      });
+      if (!resp.ok) {
+        let msg = `API error ${resp.status}`;
+        try { const j = await resp.json(); if (j.error && j.error.message) msg = j.error.message; } catch (e) { /* ignore */ }
+        if (resp.status === 401) msg = 'Key rejected — check it in Settings.';
+        throw new Error(msg);
+      }
+      const result = Game.parseSkillResponse(await resp.json(), S.skills, batch.map(i => i.id));
+      if (!result) throw new Error('Claude returned no skill assignments.');
+      const summary = applySkillResults(batch, sentText, result);
+      this.lastError = null;
+      this.lastRunAt = nowIso();
+      if (this.pending().length) this.schedule(400);
+      return summary;
+    } catch (e) {
+      this.lastError = (e && e.message) || String(e);
+      console.warn('skill check failed:', this.lastError);
+      throw e;
+    } finally {
+      this.running = false;
+      const st = $('#skillstatus'); if (st) st.textContent = skillStatusText();
+    }
+  }
+};
+function applySkillResults(batch, sentText, result) {
+  const picked = new Map(result.map(r => [r.id, r.skillId]));
+  const t = nowIso();
+  const before = TOTALS;
+  const ops = [];
+  const lateGains = [];
+  let moved = 0;
+  for (const sent of batch) {
+    const it = itemById(sent.id);
+    if (!it || it.skillSource === 'user') continue;     // deleted, or you picked one meanwhile
+    if (it.text !== sentText.get(it.id)) continue;       // renamed meanwhile: stays pending
+    const sid = picked.get(it.id);
+    if (sid && sid !== it.skillId) {
+      const recentNull = S.completions.filter(c => c.itemId === it.id && !c.skillId && Date.now() - Date.parse(c.at) < 10 * 60000);
+      reassignSkill(it, sid, 'ai', { ops, checkedAt: t });
+      for (const c of recentNull) lateGains.push(c);
+      moved++;
+    } else {
+      it.aiCheckedAt = t;
+      if (sid) it.skillSource = 'ai';
+      ops.push({ store: 'items', put: it });
+    }
+  }
+  persist(ops);
+  recompute();
+  // A check-off that happened before its skill was known gets its celebration now.
+  if (lateGains.length) Boost.show(gainsBySkill(lateGains), before, TOTALS);
+  if (moved) {
+    runAchievementChecks();
+    const r = route();
+    if (!Sheet.top() && (r.view !== 'list' || !document.activeElement || document.activeElement.id !== 'newitem')) render();
+    else if (r.view === 'list') refreshListBody();
+  }
+  return { checked: batch.length, moved };
+}
+function skillStatusText() {
+  if (!S.apiKey) return 'needs API key';
+  if (S.settings.aiSkillCheck === false) return 'off';
+  if (SkillAI.running) return 'checking…';
+  if (SkillAI.lastError) return 'last check failed';
+  const n = SkillAI.pending().length;
+  return n ? `${n} waiting` : 'up to date';
+}
+async function recheckAllSkills() {
+  if (!S.apiKey) { toast('Add your API key first'); return; }
+  if (navigator.onLine === false) { toast('You’re offline — try again when connected'); return; }
+  if (S.settings.aiSkillCheck === false) saveSettings({ aiSkillCheck: true });
+  const ops = [];
+  for (const it of S.items) if (it.skillSource !== 'user' && it.aiCheckedAt) { it.aiCheckedAt = null; ops.push({ store: 'items', put: it }); }
+  if (ops.length) persist(ops);
+  const total = SkillAI.pending().length;
+  if (!total) { toast('Nothing to check — every item has your own pick'); return; }
+  clearTimeout(SkillAI.timer);
+  toast(`Checking ${total} item${total === 1 ? '' : 's'} with Claude…`);
+  let moved = 0, guard = 0;
+  try {
+    while (SkillAI.pending().length && guard++ < 50) {
+      while (SkillAI.running) await new Promise(r => setTimeout(r, 200));
+      const s = await SkillAI.run();
+      if (!s) break;
+      moved += s.moved;
+    }
+    toast(moved ? `Done — ${moved} item${moved === 1 ? '' : 's'} moved to a better skill` : 'Done — every skill checks out');
+  } catch (e) {
+    toast(`Skill check failed: ${SkillAI.lastError || e.message}`, { ms: 4000 });
+  }
+  render();
+}
+
+// ---------- swipe to delete ----------
+let sw = null, suppressClickUntil = 0;
+function closeAllRows(except) { document.querySelectorAll('.swipe.open').forEach(el => { if (el !== except) el.classList.remove('open'); }); }
+document.addEventListener('pointerdown', e => {
+  const el = e.target.closest('.swipe');
+  if (!el || (e.pointerType === 'mouse' && e.button !== 0)) { if (!e.target.closest('.row-del')) closeAllRows(); return; }
+  if (!el.querySelector('.row-del')) return;
+  closeAllRows(el);
+  sw = { el, x: e.clientX, y: e.clientY, dx: 0, decided: null, open: el.classList.contains('open') };
+}, { passive: true });
+document.addEventListener('pointermove', e => {
+  if (!sw) return;
+  const dx = e.clientX - sw.x, dy = e.clientY - sw.y;
+  if (sw.decided === null) { if (Math.abs(dx) < 6 && Math.abs(dy) < 6) return; sw.decided = Math.abs(dx) > Math.abs(dy) * 1.2 ? 'h' : 'v'; if (sw.decided === 'h') { sw.el.classList.add('swiping'); try { sw.el.setPointerCapture(e.pointerId); } catch (err) { /* ignore */ } } }
+  if (sw.decided !== 'h') return;
+  let x = (sw.open ? -88 : 0) + dx;
+  x = Math.min(0, Math.max(-110, x));
+  sw.dx = x;
+  sw.el.querySelector('.row').style.transform = `translateX(${x}px)`;
+});
+function endSwipe() {
+  if (!sw) return;
+  const { el, dx, decided } = sw;
+  sw = null;
+  el.classList.remove('swiping');
+  const row = el.querySelector('.row'); if (row) row.style.transform = '';
+  if (decided === 'h') { suppressClickUntil = Date.now() + 350; if (dx < -44) el.classList.add('open'); else el.classList.remove('open'); }
+}
+document.addEventListener('pointerup', endSwipe);
+document.addEventListener('pointercancel', endSwipe);
+
+// ---------- click dispatch ----------
+document.addEventListener('click', e => {
+  const t = e.target.closest('[data-act]');
+  if (!t) return;
+  if (Date.now() < suppressClickUntil && !t.closest('.row-del')) { e.preventDefault(); return; }
+  const act = t.dataset.act, id = t.dataset.id;
+  const openRow = t.closest('.swipe.open');
+  if (openRow && act !== 'delete') { openRow.classList.remove('open'); return; }
+  switch (act) {
+    case 'skip-gate': sessionStorage.setItem('skipGate', '1'); render(); break;
+    case 'onboard-done': saveSettings({ onboarded: true }); render(); break;
+    case 'capture': openCaptureMenu(t.dataset.cat || null); break;
+    case 'toggle': toggleItem(id, t); break;
+    case 'toggle-sheet': toggleItem(id, t); break;
+    case 'open': Sheet.push(itemSheet(id)); break;
+    case 'open-sub': flushSheetInputs(); Sheet.push(itemSheet(id)); break;
+    case 'delete': deleteItem(id); render(); break;
+    case 'uncomplete': removeCompletions([t.dataset.cid]); render(); break;
+    case 'add-list': Sheet.push(categorySheet(null)); break;
+    case 'list-menu': Sheet.push(menuSheet(catById(id) ? catById(id).name : 'List', [
+      { label: 'Edit List', icon: ICONS.settings, run: () => Sheet.push(categorySheet(id)) },
+      { label: 'Delete List', icon: ICONS.trash, danger: true, run: () => { const c = catById(id); const n = S.items.filter(i => i.categoryId === id).length; if (c && confirm(`Delete "${c.name}"${n ? ` and its ${n} item${n === 1 ? '' : 's'}` : ''}? Past XP stays in your overall total.`)) { deleteCategory(id); setTimeout(() => go('#/'), 80); } } }
+    ])); break;
+    case 'menu-pick': { const m = Sheet.top(); const entry = m && m.entries && m.entries[+t.dataset.i]; if (!entry) break; if (entry.replace) { entry.run(); } else { Sheet.pop(); entry.run(); } break; } // run stays inside the user gesture (camera, clipboard)
+    case 'sheet-left': case 'sheet-backdrop': Sheet.pop(); break;
+    case 'sheet-right': { const s = Sheet.top(); if (!s) break; if (s.flush) s.flush(); if (s.done) { const r = s.done(); if (r === false || r === 'replaced') break; } Sheet.pop(); break; }
+    // capture
+    case 'capture-retry': { const s = Sheet.top(); if (s && s.retry) s.retry(); break; }
+    case 'rv-due': Sheet.top().draft.due = t.dataset.v || null; Sheet.rerender(); break;
+    case 'rv-due-pick': { const p = $('#rv-date'); if (p) { try { p.showPicker(); } catch (e) { p.click(); } } break; }
+    case 'rv-type': { const s = Sheet.top(); const x = s.draft[t.dataset.list][+t.dataset.i]; x.type = x.type === 'habit' ? 'task' : 'habit'; Sheet.rerender(); break; }
+    case 'rv-add': { const s = Sheet.top(); const n = s.add(); Sheet.pop(); toast(`Added ${n} item${n === 1 ? '' : 's'}`); render(); break; }
+    // item sheet fields
+    case 'f-tier': updateItem(Sheet.top().id, { tier: +t.dataset.v }); Sheet.rerender(); refreshListBody(); break;
+    case 'f-type': { const it = itemById(Sheet.top().id); if (!it || it.type === t.dataset.v) break; flushSheetInputs(); updateItem(it.id, t.dataset.v === 'habit' ? { type: 'habit', repeat: { kind: 'daily' }, due: null } : { type: 'task', repeat: null, timesPerDay: 1 }); Sheet.rerender(); refreshListBody(); break; }
+    case 'f-repeat': { const it = itemById(Sheet.top().id); if (!it) break; const kind = t.dataset.v; const days = kind === 'daily' ? Game.ALL_DAYS.slice() : kind === 'weekly' ? [it.repeat.days.length === 1 ? it.repeat.days[0] : Game.weekdayOf(todayKey())] : (it.repeat.days.length === 7 ? [1, 2, 3, 4, 5] : it.repeat.days); updateItem(it.id, { repeat: { kind, days } }); Sheet.rerender(); refreshListBody(); break; }
+    case 'f-day': { const it = itemById(Sheet.top().id); if (!it) break; const d = +t.dataset.v; let days = it.repeat.days.slice(); if (it.repeat.kind === 'weekly') days = [d]; else if (days.includes(d)) { if (days.length > 1) days = days.filter(x => x !== d); } else days.push(d); updateItem(it.id, { repeat: { kind: it.repeat.kind, days } }); Sheet.rerender(); refreshListBody(); break; }
+    case 'f-tpd': { const it = itemById(Sheet.top().id); if (!it) break; updateItem(it.id, { timesPerDay: Math.min(99, Math.max(1, it.timesPerDay + (+t.dataset.v))) }); Sheet.rerender(); refreshListBody(); break; }
+    case 'f-due-clear': updateItem(Sheet.top().id, { due: null }); Sheet.rerender(); refreshListBody(); break;
+    case 'f-due-today': updateItem(Sheet.top().id, { due: todayKey() }); Sheet.rerender(); refreshListBody(); break;
+    case 'f-delete': { const s = Sheet.top(); const it = itemById(s.id); if (!it) break; const n = childrenOf(it.id).length; if (n && !confirm(`Delete this and its ${n} sub-task${n === 1 ? '' : 's'}?`)) break; deleteItem(s.id); Sheet.pop(); break; }
+    // category sheet
+    case 'c-color': Sheet.top().draft.color = t.dataset.v; Sheet.rerender(); break;
+    case 'c-icon': Sheet.top().draft.icon = t.dataset.v; Sheet.rerender(); break;
+    case 'c-delete': { const s = Sheet.top(); const c = catById(s.id); const n = S.items.filter(i => i.categoryId === s.id).length; if (c && confirm(`Delete "${c.name}"${n ? ` and its ${n} item${n === 1 ? '' : 's'}` : ''}? Past XP stays in your overall total.`)) { deleteCategory(s.id); Sheet.pop(); setTimeout(() => go('#/'), 80); } break; }
+    // skills
+    case 'skill-new': Sheet.push(skillSheet(null)); break;
+    case 'skill-edit': Sheet.push(skillSheet(id)); break;
+    case 'sk-color': Sheet.top().draft.color = t.dataset.v; Sheet.top().draft.name = ($('#sk-name') || {}).value ?? Sheet.top().draft.name; Sheet.rerender(); break;
+    case 'sk-icon': Sheet.top().draft.icon = t.dataset.v; Sheet.top().draft.name = ($('#sk-name') || {}).value ?? Sheet.top().draft.name; Sheet.rerender(); break;
+    case 'sk-delete': { const s = Sheet.top(); const sk = skillById(s.id); if (!sk) break; const n = S.items.filter(i => i.skillId === sk.id).length; if (confirm(`Delete the ${sk.name} skill?${n ? ` Its ${n} item${n === 1 ? '' : 's'} will be re-sorted into other skills.` : ''} Your overall XP is kept.`)) { deleteSkill(sk.id); Sheet.pop(); setTimeout(() => go('#/skills'), 80); } break; }
+    case 'recheck-skills': recheckAllSkills(); break;
+    // achievements
+    case 'ach-new': Sheet.push(achievementSheet(null)); break;
+    case 'ach-open': Sheet.push(achievementSheet(id)); break;
+    case 'a-kind': { const s = Sheet.top(); s.flush(); const d = s.draft; d.kind = t.dataset.v; if (d.kind === 'level' && !['all', 'skill', 'anySkill', 'everySkill'].includes(d.scope.type)) d.scope = { type: 'all' }; if (d.kind !== 'level' && (d.scope.type === 'anySkill' || d.scope.type === 'everySkill')) d.scope = { type: 'all' }; if (d.kind === 'streak' && d.threshold === 10) d.threshold = 7; if (d.kind === 'level' && d.threshold >= 10) d.threshold = 5; Sheet.rerender(); break; }
+    case 'a-unlock': unlockManual(Sheet.top().id); Sheet.pop(); break;
+    case 'a-delete': if (confirm('Delete this achievement?')) { deleteAchievement(Sheet.top().id); Sheet.pop(); } break;
+    // settings
+    case 'export': exportBackup(); break;
+    case 'import': $('#file-import').click(); break;
+    case 'erase': eraseAll(); break;
+    case 'key-save': saveApiKey($('#apikey').value); break;
+    case 'key-clear': clearApiKey(); break;
+    case 'copy-prompt': copyPastePrompt(); break;
+  }
+});
+document.addEventListener('change', e => {
+  const el = e.target;
+  if (el.id === 'file-import') { const f = el.files && el.files[0]; el.value = ''; if (f) importBackupFile(f); return; }
+  if (el.id === 'file-photo') { const f = el.files && el.files[0]; el.value = ''; if (f) { Sheet.push(progressSheet('Reading your card…')); handlePhoto(f); } return; }
+  if (el.dataset && el.dataset.set) {
+    const k = el.dataset.set;
+    if (k === 'dayStartHour') { saveSettings({ dayStartHour: +el.value }); }
+    else if (k === 'defaultCategoryId') saveSettings({ defaultCategoryId: el.value });
+    else if (k === 'modelPreset') { if (el.value === '__custom') { saveSettings({ model: '' }); render(); } else saveSettings({ model: el.value }); }
+    else if (k === 'aiSkillCheck') { saveSettings({ aiSkillCheck: el.checked }); if (el.checked) SkillAI.schedule(500); const st = $('#skillstatus'); if (st) st.textContent = skillStatusText(); }
+  }
+  if (el.id === 'modelcustom') saveSettings({ model: el.value.trim() || Game.DEFAULT_MODEL });
+});
+
+// keep the layout above the iOS keyboard
+if (window.visualViewport) {
+  const fit = () => { const vv = window.visualViewport; app.style.height = vv.height + 'px'; app.style.top = vv.offsetTop + 'px'; };
+  window.visualViewport.addEventListener('resize', fit);
+  window.visualViewport.addEventListener('scroll', fit);
+}
+window.addEventListener('focusin', () => { setTimeout(() => window.scrollTo(0, 0), 50); });
+
+// day rollover while the app stays open
+let lastTk = null;
+setInterval(() => { if (!booted) return; const tk = todayKey(); if (tk !== lastTk) { lastTk = tk; render(); } }, 60000);
+document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible' && booted) { render(); SkillAI.schedule(1500); } });
+window.addEventListener('online', () => { if (booted) SkillAI.schedule(1000); });
+
+// ---------- service worker (offline + update toast) ----------
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', async () => {
+    try {
+      const reg = await navigator.serviceWorker.register('sw.js');
+      const watch = worker => { if (!worker) return; worker.addEventListener('statechange', () => { if (worker.state === 'installed' && navigator.serviceWorker.controller) toast('Update ready', { action: 'Reload', onAction: () => location.reload(), ms: 12000 }); }); };
+      watch(reg.installing);
+      reg.addEventListener('updatefound', () => watch(reg.installing));
+      document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') reg.update().catch(() => {}); });
+    } catch (e) { console.warn('service worker registration failed', e); }
+  });
+}
+
+// ---------- boot ----------
+async function boot() {
+  try { if (navigator.storage && navigator.storage.persist) navigator.storage.persist().catch(() => {}); } catch (e) { /* ignore */ }
+  const [categories, items, completions, achievements, settings, secrets, skills] = await Promise.all(DB.STORES.map(s => DB.getAll(s)));
+  const t = nowIso();
+  S.settings = settings.find(s => s.id === 'settings') || null;
+  const fresh = !S.settings && !categories.length;
+  let upgraded = false;
+  if (fresh) {
+    S.settings = Game.defaultSettings(t);
+    S.categories = Game.seedLists(t);
+    S.skills = Game.seedSkills(t);
+    S.achievements = Game.seedAchievements(t);
+    S.items = []; S.completions = [];
+    await persist([
+      { store: 'settings', put: S.settings },
+      ...S.categories.map(c => ({ store: 'categories', put: c })),
+      ...S.skills.map(s => ({ store: 'skills', put: s })),
+      ...S.achievements.map(a => ({ store: 'achievements', put: a }))
+    ]);
+  } else {
+    const hadFirstLaunch = !!(S.settings && S.settings.firstLaunchAt);
+    const baseSettings = S.settings || Object.assign(Game.defaultSettings(t), { schemaVersion: skills.length ? Game.SCHEMA_VERSION : 1 });
+    const norm = Game.normalizeState({ settings: baseSettings, categories, skills, items, completions, achievements }, Game.dayKey(new Date(), baseSettings.dayStartHour), t);
+    S.settings = norm.settings; S.categories = norm.categories; S.skills = norm.skills; S.items = norm.items; S.completions = norm.completions; S.achievements = norm.achievements;
+    if (!S.settings.firstLaunchAt) S.settings.firstLaunchAt = t;
+    if (norm.migratedFrom) {
+      // v1 → v2: write skills, skill-tagged items and history, retargeted achievements in one transaction.
+      upgraded = true;
+      await persist([
+        { store: 'skills', clear: true }, ...S.skills.map(s => ({ store: 'skills', put: s })),
+        ...S.items.map(i => ({ store: 'items', put: i })),
+        ...S.completions.map(c => ({ store: 'completions', put: c })),
+        { store: 'achievements', clear: true }, ...S.achievements.map(a => ({ store: 'achievements', put: a })),
+        { store: 'settings', put: S.settings }
+      ]);
+    } else if (!hadFirstLaunch) persist([{ store: 'settings', put: S.settings }]);
+  }
+  const key = secrets.find(s => s.id === 'anthropicKey'); S.apiKey = key ? key.value : null;
+  recompute();
+  lastTk = todayKey();
+  booted = true;
+  render();
+  if (upgraded) toast('New: a Skills tab. Your history has been sorted into skills.', { ms: 4500 });
+  SkillAI.schedule(upgraded ? 2500 : 1500);
+}
+boot().catch(err => { console.error(err); app.innerHTML = `<div class="screen"><div class="intro"><h1>Couldn't start</h1><p>${esc(err && err.message || err)}</p><p>If this keeps happening, the browser may be blocking storage (private mode?).</p></div></div>`; });
+</script>
+</body>
+</html>
